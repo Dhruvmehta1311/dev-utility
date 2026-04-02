@@ -1,294 +1,766 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="night">
+<html lang="en" data-theme="glass-dark">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>DevToolkit — JSON · XML · Base64 · Escape</title>
+<title>DevToolkit — JSON · XML · Base64</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-/* ── Fonts ── */
-*, body { font-family: 'JetBrains Mono', monospace; }
-.font-syne { font-family: 'Syne', sans-serif; }
-
-/* ── Scanlines on dark themes ── */
-[data-theme="night"] body::after,
-[data-theme="dracula"] body::after,
-[data-theme="forest"] body::after,
-[data-theme="black"] body::after,
-[data-theme="luxury"] body::after,
-[data-theme="business"] body::after {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:9999;
-  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.018) 2px,rgba(0,0,0,0.018) 4px);
+/* ──────────────────────────────────────────
+   FONT STACK — SF Pro style fallback chain
+   ────────────────────────────────────────── */
+:root {
+  --font-ui: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
+
+* { box-sizing: border-box; }
+body { font-family: var(--font-ui); }
+.mono { font-family: var(--font-mono); }
+
+/* ──────────────────────────────────────────
+   THEME VARIABLES
+   ────────────────────────────────────────── */
+
+/* Dark Glass (default) */
+[data-theme="glass-dark"] {
+  --bg-root:    linear-gradient(135deg, #0f0f1a 0%, #111827 50%, #0d1117 100%);
+  --bg-orb1:    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(99,102,241,0.18) 0%, transparent 70%);
+  --bg-orb2:    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(14,165,233,0.14) 0%, transparent 70%);
+  --glass:      rgba(255,255,255,0.05);
+  --glass-hov:  rgba(255,255,255,0.08);
+  --glass-bd:   rgba(255,255,255,0.10);
+  --glass-nav:  rgba(15,15,26,0.75);
+  --glass-card: rgba(255,255,255,0.04);
+  --glass-in:   rgba(0,0,0,0.25);
+  --text:       rgba(255,255,255,0.92);
+  --text-2:     rgba(255,255,255,0.55);
+  --text-3:     rgba(255,255,255,0.28);
+  --accent:     #6366f1;
+  --accent-glow:rgba(99,102,241,0.35);
+  --accent-2:   #0ea5e9;
+  --success:    #34d399;
+  --danger:     #f87171;
+  --warn:       #fbbf24;
+  --shadow:     0 8px 32px rgba(0,0,0,0.4);
+  --shadow-sm:  0 2px 12px rgba(0,0,0,0.25);
+}
+
+/* Arctic (Light Glass) */
+[data-theme="glass-light"] {
+  --bg-root:    linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 50%, #f5f0ff 100%);
+  --bg-orb1:    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(99,102,241,0.12) 0%, transparent 70%);
+  --bg-orb2:    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(14,165,233,0.10) 0%, transparent 70%);
+  --glass:      rgba(255,255,255,0.55);
+  --glass-hov:  rgba(255,255,255,0.72);
+  --glass-bd:   rgba(255,255,255,0.75);
+  --glass-nav:  rgba(255,255,255,0.72);
+  --glass-card: rgba(255,255,255,0.45);
+  --glass-in:   rgba(255,255,255,0.6);
+  --text:       rgba(15,15,30,0.90);
+  --text-2:     rgba(15,15,30,0.50);
+  --text-3:     rgba(15,15,30,0.28);
+  --accent:     #4f46e5;
+  --accent-glow:rgba(79,70,229,0.25);
+  --accent-2:   #0284c7;
+  --success:    #059669;
+  --danger:     #dc2626;
+  --warn:       #d97706;
+  --shadow:     0 8px 32px rgba(99,102,241,0.12);
+  --shadow-sm:  0 2px 12px rgba(99,102,241,0.08);
+}
+
+/* Midnight Indigo */
+[data-theme="midnight"] {
+  --bg-root:    linear-gradient(135deg, #020617 0%, #0f0f3d 50%, #050520 100%);
+  --bg-orb1:    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(139,92,246,0.22) 0%, transparent 70%);
+  --bg-orb2:    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(236,72,153,0.14) 0%, transparent 70%);
+  --glass:      rgba(139,92,246,0.08);
+  --glass-hov:  rgba(139,92,246,0.14);
+  --glass-bd:   rgba(139,92,246,0.20);
+  --glass-nav:  rgba(2,6,23,0.80);
+  --glass-card: rgba(139,92,246,0.05);
+  --glass-in:   rgba(0,0,0,0.3);
+  --text:       rgba(240,235,255,0.94);
+  --text-2:     rgba(200,185,255,0.55);
+  --text-3:     rgba(200,185,255,0.25);
+  --accent:     #a78bfa;
+  --accent-glow:rgba(167,139,250,0.35);
+  --accent-2:   #ec4899;
+  --success:    #34d399;
+  --danger:     #fb7185;
+  --warn:       #fbbf24;
+  --shadow:     0 8px 32px rgba(0,0,0,0.55);
+  --shadow-sm:  0 2px 12px rgba(0,0,0,0.3);
+}
+
+/* Aurora (Teal-Green) */
+[data-theme="aurora"] {
+  --bg-root:    linear-gradient(135deg, #011716 0%, #022c22 50%, #011c16 100%);
+  --bg-orb1:    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(16,185,129,0.20) 0%, transparent 70%);
+  --bg-orb2:    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(6,182,212,0.14) 0%, transparent 70%);
+  --glass:      rgba(16,185,129,0.07);
+  --glass-hov:  rgba(16,185,129,0.13);
+  --glass-bd:   rgba(16,185,129,0.18);
+  --glass-nav:  rgba(1,23,22,0.80);
+  --glass-card: rgba(16,185,129,0.04);
+  --glass-in:   rgba(0,0,0,0.28);
+  --text:       rgba(220,255,245,0.93);
+  --text-2:     rgba(110,231,183,0.55);
+  --text-3:     rgba(110,231,183,0.25);
+  --accent:     #10b981;
+  --accent-glow:rgba(16,185,129,0.35);
+  --accent-2:   #06b6d4;
+  --success:    #34d399;
+  --danger:     #f87171;
+  --warn:       #fbbf24;
+  --shadow:     0 8px 32px rgba(0,0,0,0.5);
+  --shadow-sm:  0 2px 12px rgba(0,0,0,0.25);
+}
+
+/* Rose Gold */
+[data-theme="rosegold"] {
+  --bg-root:    linear-gradient(135deg, #1a0a0e 0%, #2d1217 50%, #1a0810 100%);
+  --bg-orb1:    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(244,114,182,0.18) 0%, transparent 70%);
+  --bg-orb2:    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(251,191,36,0.12) 0%, transparent 70%);
+  --glass:      rgba(244,114,182,0.07);
+  --glass-hov:  rgba(244,114,182,0.12);
+  --glass-bd:   rgba(244,114,182,0.18);
+  --glass-nav:  rgba(26,8,14,0.80);
+  --glass-card: rgba(244,114,182,0.04);
+  --glass-in:   rgba(0,0,0,0.28);
+  --text:       rgba(255,235,240,0.93);
+  --text-2:     rgba(251,191,36,0.55);
+  --text-3:     rgba(255,200,210,0.28);
+  --accent:     #f472b6;
+  --accent-glow:rgba(244,114,182,0.35);
+  --accent-2:   #fbbf24;
+  --success:    #34d399;
+  --danger:     #f87171;
+  --warn:       #fbbf24;
+  --shadow:     0 8px 32px rgba(0,0,0,0.5);
+  --shadow-sm:  0 2px 12px rgba(0,0,0,0.25);
+}
+
+/* Slate Pro (neutral dark) */
+[data-theme="slate"] {
+  --bg-root:    linear-gradient(135deg, #0c0d0f 0%, #141618 50%, #0e0f11 100%);
+  --bg-orb1:    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(148,163,184,0.10) 0%, transparent 70%);
+  --bg-orb2:    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(100,116,139,0.08) 0%, transparent 70%);
+  --glass:      rgba(255,255,255,0.04);
+  --glass-hov:  rgba(255,255,255,0.07);
+  --glass-bd:   rgba(255,255,255,0.08);
+  --glass-nav:  rgba(12,13,15,0.85);
+  --glass-card: rgba(255,255,255,0.03);
+  --glass-in:   rgba(0,0,0,0.3);
+  --text:       rgba(226,232,240,0.92);
+  --text-2:     rgba(148,163,184,0.60);
+  --text-3:     rgba(100,116,139,0.45);
+  --accent:     #94a3b8;
+  --accent-glow:rgba(148,163,184,0.20);
+  --accent-2:   #64748b;
+  --success:    #34d399;
+  --danger:     #f87171;
+  --warn:       #fbbf24;
+  --shadow:     0 8px 32px rgba(0,0,0,0.45);
+  --shadow-sm:  0 2px 12px rgba(0,0,0,0.22);
+}
+
+/* Sand Light */
+[data-theme="sand"] {
+  --bg-root:    linear-gradient(135deg, #faf7f2 0%, #f5ede0 50%, #fdf8f0 100%);
+  --bg-orb1:    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(217,119,6,0.10) 0%, transparent 70%);
+  --bg-orb2:    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(234,88,12,0.08) 0%, transparent 70%);
+  --glass:      rgba(255,255,255,0.50);
+  --glass-hov:  rgba(255,255,255,0.68);
+  --glass-bd:   rgba(255,255,255,0.70);
+  --glass-nav:  rgba(250,247,242,0.80);
+  --glass-card: rgba(255,255,255,0.42);
+  --glass-in:   rgba(255,255,255,0.6);
+  --text:       rgba(28,20,10,0.88);
+  --text-2:     rgba(92,60,20,0.55);
+  --text-3:     rgba(92,60,20,0.30);
+  --accent:     #d97706;
+  --accent-glow:rgba(217,119,6,0.22);
+  --accent-2:   #ea580c;
+  --success:    #059669;
+  --danger:     #dc2626;
+  --warn:       #d97706;
+  --shadow:     0 8px 32px rgba(120,80,20,0.12);
+  --shadow-sm:  0 2px 12px rgba(120,80,20,0.08);
+}
+
+/* ──────────────────────────────────────────
+   GLOBAL BASE STYLES
+   ────────────────────────────────────────── */
+html, body { height: 100%; margin: 0; overflow-x: hidden; }
+
+body {
+  background: var(--bg-root);
+  color: var(--text);
+  min-height: 100vh;
+  position: relative;
+}
+body::before, body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+}
+body::before { background: var(--bg-orb1); }
+body::after  { background: var(--bg-orb2); }
 
 /* ── Scrollbars ── */
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:oklch(var(--b2))}
-::-webkit-scrollbar-thumb{background:oklch(var(--n));border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:oklch(var(--bc)/0.3)}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--glass-bd); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 
-/* ── Sidebar ── */
-.sidebar{
-  width:230px;min-width:230px;flex-shrink:0;
-  height:calc(100vh - 56px);position:sticky;top:56px;
-  overflow-y:auto;background:oklch(var(--b2));
-  border-right:1px solid oklch(var(--bc)/0.08);
-  transition:left .25s ease;
+/* ──────────────────────────────────────────
+   GLASS MIXINS
+   ────────────────────────────────────────── */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-bd);
+  border-radius: 16px;
 }
-.s-label{
-  font-size:9px;letter-spacing:2.5px;text-transform:uppercase;
-  padding:14px 14px 4px;color:oklch(var(--bc)/0.3);font-weight:700;
+.glass-nav {
+  background: var(--glass-nav);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border-bottom: 1px solid var(--glass-bd);
 }
-.s-btn{
-  display:flex;align-items:center;gap:10px;
-  width:100%;padding:9px 16px;font-size:12px;font-weight:500;
-  color:oklch(var(--bc)/0.5);background:transparent;border:none;cursor:pointer;
-  border-left:2.5px solid transparent;transition:all .15s ease;text-align:left;
+.glass-card {
+  background: var(--glass-card);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--glass-bd);
+  border-radius: 14px;
+  overflow: hidden;
 }
-.s-btn:hover{color:oklch(var(--bc));background:oklch(var(--b3))}
-.s-btn.active{color:oklch(var(--p));border-left-color:oklch(var(--p));background:oklch(var(--p)/0.07)}
-.s-icon{width:22px;text-align:center;font-size:13px;flex-shrink:0}
+.glass-input {
+  background: var(--glass-in);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-bd);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font-ui);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: 8px 12px;
+}
+.glass-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
 
-/* ── Main scroll area ── */
-.main-scroll{flex:1;overflow-y:auto;height:calc(100vh - 56px);background:oklch(var(--b1))}
-.panel{display:none;padding:28px;max-width:1300px}
-.panel.active{display:block;animation:fadein .2s ease}
-@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+/* ──────────────────────────────────────────
+   NAVBAR
+   ────────────────────────────────────────── */
+.navbar-wrap {
+  position: sticky; top: 0; z-index: 200;
+  padding: 0 20px;
+  height: 56px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  font-size: 17px; font-weight: 600; letter-spacing: -0.4px;
+  color: var(--text);
+}
+.nav-logo span { color: var(--accent); }
+.nav-badge {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.3px;
+  background: var(--accent); color: #fff;
+  padding: 2px 7px; border-radius: 20px;
+  margin-left: 7px;
+}
 
-/* ── Editor cards ── */
-.ed-card{background:oklch(var(--b2));border:1px solid oklch(var(--bc)/0.08);border-radius:10px;overflow:hidden}
-.ed-bar{
-  background:oklch(var(--b3));border-bottom:1px solid oklch(var(--bc)/0.08);
-  padding:8px 14px;display:flex;align-items:center;justify-content:space-between;
-  font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:oklch(var(--bc)/0.35);
+/* ──────────────────────────────────────────
+   SIDEBAR
+   ────────────────────────────────────────── */
+.sidebar {
+  width: 232px; min-width: 232px; flex-shrink: 0;
+  height: calc(100vh - 56px);
+  position: sticky; top: 56px;
+  overflow-y: auto;
+  background: var(--glass-nav);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid var(--glass-bd);
+  z-index: 100;
+  padding: 8px 0 24px;
 }
-.ed-dots{display:flex;gap:5px}
-.ed-dot{width:7px;height:7px;border-radius:50%;background:oklch(var(--bc)/0.12)}
-.ed-dot.r{background:#ff5f57}.ed-dot.y{background:#febc2e}.ed-dot.g{background:#28c840}
-textarea.code-in, pre.code-out{
-  width:100%;min-height:210px;
-  background:oklch(var(--b2));color:oklch(var(--bc));
-  border:none;outline:none;resize:vertical;
-  font-family:'JetBrains Mono',monospace;
-  font-size:12.5px;line-height:1.75;padding:16px;margin:0;display:block;
-  tab-size:2;
+.s-section {
+  font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
+  text-transform: uppercase; color: var(--text-3);
+  padding: 16px 20px 6px;
 }
-pre.code-out{white-space:pre-wrap;word-break:break-all;overflow-y:auto}
-.stats-row{
-  background:oklch(var(--b3));border-top:1px solid oklch(var(--bc)/0.08);
-  padding:6px 14px;font-size:10px;color:oklch(var(--bc)/0.35);
-  display:flex;gap:16px;flex-wrap:wrap;align-items:center;min-height:30px;
+.s-btn {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 9px 20px;
+  font-family: var(--font-ui);
+  font-size: 13.5px; font-weight: 400; letter-spacing: -0.1px;
+  color: var(--text-2);
+  background: transparent; border: none; cursor: pointer;
+  border-radius: 0;
+  transition: all 0.18s ease; text-align: left;
+  position: relative;
 }
-.stats-row b{color:oklch(var(--s))}
+.s-btn::before {
+  content: '';
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 0; border-radius: 2px;
+  background: var(--accent);
+  transition: height 0.2s ease;
+}
+.s-btn:hover { color: var(--text); background: var(--glass); }
+.s-btn.active {
+  color: var(--text);
+  background: var(--glass);
+  font-weight: 500;
+}
+.s-btn.active::before { height: 22px; }
+.s-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0;
+  background: var(--glass);
+  border: 1px solid var(--glass-bd);
+  transition: background 0.18s;
+}
+.s-btn.active .s-icon, .s-btn:hover .s-icon {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+}
 
-/* ── File drop zone ── */
-.drop-zone{
-  border:2px dashed oklch(var(--bc)/0.15);border-radius:10px;
-  padding:32px 20px;text-align:center;cursor:pointer;
-  transition:all .2s ease;color:oklch(var(--bc)/0.4);font-size:12px;
-  position:relative;
+/* ──────────────────────────────────────────
+   MAIN SCROLL AREA
+   ────────────────────────────────────────── */
+.main-scroll {
+  flex: 1; overflow-y: auto;
+  height: calc(100vh - 56px);
+  position: relative; z-index: 1;
 }
-.drop-zone:hover,.drop-zone.drag-over{
-  border-color:oklch(var(--p));color:oklch(var(--p));background:oklch(var(--p)/0.04);
+.panel { display: none; padding: 32px 28px; max-width: 1260px; }
+.panel.active { display: block; animation: panelIn 0.22s ease; }
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-.drop-zone input[type=file]{
-  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
-}
-.drop-icon{font-size:36px;margin-bottom:8px;display:block}
 
-/* ── Toast ── */
-#toast{
-  position:fixed;bottom:24px;right:24px;
-  background:oklch(var(--b3));border:1px solid oklch(var(--p)/0.4);
-  color:oklch(var(--p));padding:10px 20px;border-radius:8px;
-  font-size:12px;font-weight:700;letter-spacing:.5px;
-  z-index:9999;opacity:0;transform:translateY(12px);
-  transition:all .22s ease;pointer-events:none;
+.panel-title {
+  font-size: 22px; font-weight: 600; letter-spacing: -0.5px;
+  color: var(--text); margin-bottom: 4px;
 }
-#toast.show{opacity:1;transform:translateY(0)}
-
-/* ── Theme palette ── */
-.theme-swatch{
-  display:flex;flex-direction:column;border-radius:7px;overflow:hidden;
-  border:2px solid oklch(var(--bc)/0.1);cursor:pointer;
-  transition:all .15s ease;flex:1;min-width:60px;max-width:80px;
+.panel-desc {
+  font-size: 13px; color: var(--text-2); margin-bottom: 22px;
+  font-weight: 400;
 }
-.theme-swatch:hover{border-color:oklch(var(--bc)/0.5);transform:translateY(-2px)}
-.theme-swatch.active{border-color:oklch(var(--p));box-shadow:0 0 0 2px oklch(var(--p)/0.25)}
-.swatch-prev{height:32px;display:flex}
-.sw-c{flex:1}
-.swatch-lbl{
-  font-size:8px;letter-spacing:.3px;text-transform:uppercase;
-  padding:4px 4px;text-align:center;background:oklch(var(--b3));
-  color:oklch(var(--bc)/0.55);font-weight:700;
+
+/* ──────────────────────────────────────────
+   EDITOR CARDS
+   ────────────────────────────────────────── */
+.ed-card {
+  background: var(--glass-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-bd);
+  border-radius: 14px; overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease;
 }
-.theme-dd{
-  position:absolute;top:calc(100% + 8px);right:0;
-  background:oklch(var(--b2));border:1px solid oklch(var(--bc)/0.12);
-  border-radius:12px;padding:18px;width:340px;z-index:999;
-  box-shadow:0 20px 60px rgba(0,0,0,.4);
-  display:none;animation:fadein .18s ease;
+.ed-card:focus-within {
+  box-shadow: 0 0 0 2px var(--accent-glow), var(--shadow-sm);
 }
-.theme-dd.open{display:block}
-
-/* ── Pulse dot ── */
-.pulse{width:6px;height:6px;border-radius:50%;background:oklch(var(--p));animation:pd 2.5s ease-in-out infinite}
-@keyframes pd{0%,100%{opacity:1}50%{opacity:.15}}
-
-/* ── Badge ── */
-.valid-badge{background:oklch(var(--su)/0.15);color:oklch(var(--su));border:1px solid oklch(var(--su)/0.3)}
-.invalid-badge{background:oklch(var(--er)/0.15);color:oklch(var(--er));border:1px solid oklch(var(--er)/0.3)}
-
-/* ── PDF preview ── */
-#pdf-preview-frame{width:100%;height:500px;border:none;border-radius:8px;background:#fff}
-
-/* ── Mobile sidebar ── */
-@media(max-width:768px){
-  .sidebar{position:fixed;top:56px;left:-240px;z-index:200;height:calc(100vh - 56px)}
-  .sidebar.open{left:0}
-  .two-col{grid-template-columns:1fr !important}
-  .panel{padding:16px}
+.ed-bar {
+  background: var(--glass);
+  border-bottom: 1px solid var(--glass-bd);
+  padding: 9px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
 }
-.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150}
-.mob-overlay.show{display:block}
+.ed-bar-title {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-3);
+  flex: 1; text-align: center;
+}
+.ed-dots { display: flex; gap: 5px; }
+.ed-dot { width: 10px; height: 10px; border-radius: 50%; }
+.ed-dot.r { background: #ff5f57; }
+.ed-dot.y { background: #febc2e; }
+.ed-dot.g { background: #28c840; }
 
-/* ── Two col ── */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+textarea.code-in, pre.code-out {
+  width: 100%; min-height: 200px;
+  background: transparent;
+  color: var(--text);
+  border: none; outline: none; resize: vertical;
+  font-family: var(--font-mono);
+  font-size: 13px; line-height: 1.7;
+  padding: 16px; margin: 0; display: block;
+  tab-size: 2;
+}
+pre.code-out {
+  white-space: pre-wrap; word-break: break-all;
+  overflow-y: auto; cursor: text;
+}
+textarea.code-in::placeholder { color: var(--text-3); }
+textarea.code-in:focus { outline: none; }
+
+.stats-row {
+  background: var(--glass);
+  border-top: 1px solid var(--glass-bd);
+  padding: 7px 14px;
+  font-size: 11px; color: var(--text-3);
+  display: flex; gap: 16px; flex-wrap: wrap;
+  font-family: var(--font-mono);
+  min-height: 32px;
+}
+.stats-row b { color: var(--accent-2); font-weight: 500; }
+
+/* ──────────────────────────────────────────
+   TOOLBAR BUTTONS
+   ────────────────────────────────────────── */
+.btn-glass {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 10px;
+  font-family: var(--font-ui); font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none;
+  transition: all 0.18s ease;
+  letter-spacing: -0.1px;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 0 0 var(--accent-glow);
+}
+.btn-primary:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 4px 16px var(--accent-glow);
+  transform: translateY(-1px);
+}
+.btn-ghost {
+  background: var(--glass);
+  color: var(--text-2);
+  border: 1px solid var(--glass-bd);
+}
+.btn-ghost:hover {
+  background: var(--glass-hov);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+.btn-xs-glass {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 7px;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--glass-bd);
+  background: var(--glass); color: var(--text-2);
+  transition: all 0.15s ease; letter-spacing: 0;
+}
+.btn-xs-glass:hover { background: var(--glass-hov); color: var(--text); }
+.btn-danger-glass {
+  background: rgba(248,113,113,0.12);
+  color: var(--danger);
+  border: 1px solid rgba(248,113,113,0.25);
+}
+.btn-danger-glass:hover { background: rgba(248,113,113,0.2); }
+
+/* ──────────────────────────────────────────
+   SELECT / INPUT
+   ────────────────────────────────────────── */
+select.glass-select {
+  background: var(--glass-in);
+  color: var(--text);
+  border: 1px solid var(--glass-bd);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: var(--font-ui); font-size: 13px;
+  outline: none; cursor: pointer;
+  transition: border-color 0.18s;
+  -webkit-appearance: none;
+}
+select.glass-select:focus { border-color: var(--accent); }
+select.glass-select option { background: #1a1a2e; color: #e2e2f0; }
+
+input.glass-input-sm {
+  background: var(--glass-in);
+  color: var(--text);
+  border: 1px solid var(--glass-bd);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: var(--font-ui); font-size: 13px;
+  outline: none; transition: border-color 0.18s;
+}
+input.glass-input-sm:focus { border-color: var(--accent); }
+
+/* ──────────────────────────────────────────
+   DROP ZONE
+   ────────────────────────────────────────── */
+.drop-zone {
+  border: 1.5px dashed var(--glass-bd);
+  border-radius: 14px; padding: 28px 20px;
+  text-align: center; cursor: pointer;
+  transition: all 0.2s ease; color: var(--text-2);
+  font-size: 13px; position: relative;
+  background: var(--glass-card);
+  backdrop-filter: blur(10px);
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-glow);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.drop-zone input[type=file] {
+  position: absolute; inset: 0; opacity: 0;
+  cursor: pointer; width: 100%; height: 100%;
+}
+.drop-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+.drop-title { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.drop-sub { font-size: 12px; color: var(--text-3); }
+
+/* ──────────────────────────────────────────
+   TOAST
+   ────────────────────────────────────────── */
+#toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-bd);
+  color: var(--text); padding: 11px 20px;
+  border-radius: 12px; font-size: 13px; font-weight: 500;
+  z-index: 9999; opacity: 0; transform: translateY(10px) scale(0.97);
+  transition: all 0.22s cubic-bezier(.175,.885,.32,1.275);
+  pointer-events: none; box-shadow: var(--shadow);
+  display: flex; align-items: center; gap: 8px;
+}
+#toast.show { opacity: 1; transform: translateY(0) scale(1); }
+#toast .t-icon { font-size: 15px; }
+
+/* ──────────────────────────────────────────
+   THEME SWITCHER DROPDOWN
+   ────────────────────────────────────────── */
+.theme-dd {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  background: var(--glass-nav);
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border: 1px solid var(--glass-bd);
+  border-radius: 18px; padding: 20px;
+  width: 300px; z-index: 999;
+  box-shadow: var(--shadow);
+  display: none;
+}
+.theme-dd.open { display: block; animation: panelIn 0.18s ease; }
+.theme-swatch {
+  flex: 1; min-width: 68px; max-width: 80px;
+  border-radius: 12px; overflow: hidden;
+  border: 2px solid var(--glass-bd);
+  cursor: pointer; transition: all 0.18s ease;
+  display: flex; flex-direction: column;
+}
+.theme-swatch:hover { border-color: var(--text-2); transform: translateY(-2px); }
+.theme-swatch.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.sw-prev { height: 30px; display: flex; }
+.sw-c { flex: 1; }
+.sw-lbl {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.3px;
+  padding: 5px 4px; text-align: center;
+  background: var(--glass);
+  color: var(--text-2); text-transform: uppercase;
+}
+
+/* ──────────────────────────────────────────
+   ALERT BOXES
+   ────────────────────────────────────────── */
+.alert-glass {
+  border-radius: 12px; padding: 14px 16px;
+  font-size: 13px; margin: 10px 0;
+  display: flex; align-items: flex-start; gap: 10px;
+  backdrop-filter: blur(10px);
+}
+.alert-success { background: rgba(52,211,153,0.10); border: 1px solid rgba(52,211,153,0.22); color: var(--success); }
+.alert-error   { background: rgba(248,113,113,0.10); border: 1px solid rgba(248,113,113,0.22); color: var(--danger); }
+.alert-info    { background: rgba(14,165,233,0.10);  border: 1px solid rgba(14,165,233,0.22);  color: var(--accent-2); }
+
+/* ──────────────────────────────────────────
+   TOOLBAR ROW
+   ────────────────────────────────────────── */
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
+.toolbar-label { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 8px; }
+
+/* ──────────────────────────────────────────
+   GRID
+   ────────────────────────────────────────── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ──────────────────────────────────────────
+   ESCAPE REFERENCE TABLE
+   ────────────────────────────────────────── */
+.ref-card { padding: 14px 16px; }
+.ref-card h4 { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-3); margin-bottom: 10px; }
+.ref-row { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11.5px; padding: 3px 0; border-bottom: 1px solid var(--glass-bd); color: var(--text-2); }
+.ref-row:last-child { border: none; }
+.ref-row code { color: var(--accent); }
+
+/* ──────────────────────────────────────────
+   MOBILE
+   ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar { position: fixed; top: 56px; left: -240px; transition: left .28s cubic-bezier(.4,0,.2,1); }
+  .sidebar.open { left: 0; }
+  .panel { padding: 20px 16px; }
+  .two-col { grid-template-columns: 1fr !important; }
+  .theme-dd { width: 260px; right: -8px; }
+}
+.mob-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(2px);
+  z-index: 99;
+}
+.mob-overlay.show { display: block; }
+
+/* ──────────────────────────────────────────
+   PULSE ANIMATION
+   ────────────────────────────────────────── */
+.pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--success); animation: pulse 2.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 var(--success)} 50%{opacity:.4;box-shadow:0 0 0 4px transparent} }
+
+/* ──────────────────────────────────────────
+   DAISYUI OVERRIDES
+   ────────────────────────────────────────── */
+[data-theme] .btn { font-family: var(--font-ui); }
 </style>
 </head>
 <body>
-<div id="toast"></div>
+
+<!-- ── Background noise texture (subtle) ── -->
+<svg style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.025" xmlns="http://www.w3.org/2000/svg">
+  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  <rect width="100%" height="100%" filter="url(#noise)"/>
+</svg>
+
+<div id="toast"><span class="t-icon">✓</span><span id="toast-msg">Copied!</span></div>
 <div class="mob-overlay" id="mobOverlay" onclick="closeSidebar()"></div>
 
-<!-- ═══════════════════════════════ NAVBAR ═══════════════════════════════ -->
-<div class="navbar sticky top-0 z-50 min-h-0 h-14 px-3 gap-2"
-     style="background:oklch(var(--b2));border-bottom:1px solid oklch(var(--bc)/0.08)">
-
-  <div class="navbar-start gap-2">
-    <button class="btn btn-ghost btn-sm px-2 lg:hidden" onclick="toggleSidebar()">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<div class="navbar-wrap glass-nav" style="position:sticky;top:0;z-index:200;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button class="btn-glass btn-ghost" style="padding:7px 10px;border-radius:9px;display:none;" id="menuBtn" onclick="toggleSidebar()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
       </svg>
     </button>
-    <span class="font-syne font-extrabold text-lg tracking-tight" style="color:oklch(var(--p))">DevToolkit</span>
-    <span class="badge badge-sm font-bold text-xs" style="background:oklch(var(--p));color:oklch(var(--pc))">v3</span>
+    <span class="nav-logo"><span>Dev</span>Toolkit<span class="nav-badge">v3</span></span>
   </div>
 
-  <div class="navbar-center hidden md:flex">
-    <span class="text-xs opacity-40 tracking-wider" id="navLabel">JSON Formatter</span>
-  </div>
+  <span id="navLabel" style="font-size:13px;color:var(--text-2);display:none;"></span>
 
-  <div class="navbar-end gap-3">
+  <div style="display:flex;align-items:center;gap:12px;">
     <div class="pulse"></div>
-    <!-- Theme Toggle -->
-    <div class="relative" id="themeWrap">
-      <button class="btn btn-ghost btn-sm gap-2 text-xs font-bold" onclick="toggleThemeDD(event)">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="5"/>
-          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+    <div style="position:relative;" id="themeWrap">
+      <button class="btn-glass btn-ghost" style="font-size:13px;gap:7px;" onclick="toggleThemeDD(event)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
         </svg>
         Theme
         <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <div class="theme-dd" id="themeDD">
-        <div class="text-xs font-bold opacity-40 tracking-widest uppercase mb-3">Choose Theme</div>
-        <div class="flex flex-wrap gap-2" id="swatchGrid"></div>
-        <div class="text-xs opacity-25 mt-3 text-center">Theme is saved automatically</div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">Appearance</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;" id="swatchGrid"></div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:12px;text-align:center;">Saved automatically</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════ LAYOUT ═══════════════════════════════ -->
-<div class="flex">
+<!-- ═══════════════════ LAYOUT ═══════════════════ -->
+<div style="display:flex;position:relative;z-index:1;">
 
-<!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
 <aside class="sidebar" id="sidebar">
-
-  <div class="s-label">JSON</div>
+  <div class="s-section">JSON</div>
   <button class="s-btn active" onclick="showTool('json-fmt',this)"><span class="s-icon">{ }</span>Formatter</button>
   <button class="s-btn" onclick="showTool('json-val',this)"><span class="s-icon">✔</span>Validator</button>
   <button class="s-btn" onclick="showTool('json-min',this)"><span class="s-icon">⬡</span>Minifier</button>
 
-  <div class="s-label">XML</div>
+  <div class="s-section">XML</div>
   <button class="s-btn" onclick="showTool('xml-fmt',this)"><span class="s-icon">&lt;/&gt;</span>Formatter</button>
   <button class="s-btn" onclick="showTool('xml-json',this)"><span class="s-icon">⇄</span>XML → JSON</button>
   <button class="s-btn" onclick="showTool('json-xml',this)"><span class="s-icon">⇄</span>JSON → XML</button>
 
-  <div class="s-label">Base64</div>
+  <div class="s-section">Base64</div>
   <button class="s-btn" onclick="showTool('b64-enc',this)"><span class="s-icon">↑</span>Encode</button>
   <button class="s-btn" onclick="showTool('b64-dec',this)"><span class="s-icon">↓</span>Decode</button>
   <button class="s-btn" onclick="showTool('b64-pdf',this)"><span class="s-icon">📄</span>B64 → PDF</button>
   <button class="s-btn" onclick="showTool('pdf-b64',this)"><span class="s-icon">📤</span>PDF → B64</button>
 
-  <div class="s-label">Escape</div>
+  <div class="s-section">Escape</div>
   <button class="s-btn" onclick="showTool('escape',this)"><span class="s-icon">\\</span>Escape / Unescape</button>
 
-  <div class="p-4 mt-6 border-t" style="border-color:oklch(var(--bc)/0.07)">
-    <p class="text-xs opacity-25 leading-relaxed">11 tools · 100% client-side · nothing leaves your browser</p>
+  <div style="padding:20px 20px 8px;margin-top:12px;border-top:1px solid var(--glass-bd);">
+    <p style="font-size:11px;color:var(--text-3);line-height:1.6;">11 tools · 100% client-side<br>Nothing leaves your browser</p>
+    <p style="font-size:10px;color:var(--text-3);margin-top:6px;">⌘ Enter to run active tool</p>
   </div>
 </aside>
 
-<!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+<!-- ═══════════════════ MAIN ═══════════════════ -->
 <main class="main-scroll" id="mainScroll">
 
-<!-- ══════════ PANEL: JSON FORMATTER ══════════ -->
+<!-- ══════════ JSON FORMATTER ══════════ -->
 <div class="panel active" id="panel-json-fmt">
-  <h1 class="font-syne text-2xl font-bold mb-1">JSON Formatter</h1>
-  <p class="text-xs opacity-40 mb-5">Pretty-print JSON with customizable indentation. Drag &amp; drop a file or paste below.</p>
+  <div class="panel-title">JSON Formatter</div>
+  <div class="panel-desc">Pretty-print and indent JSON with customizable spacing. Drag &amp; drop or paste.</div>
 
-  <div class="flex flex-wrap gap-3 mb-4 items-center">
-    <label class="flex items-center gap-2 text-xs opacity-60">
-      Indent
-      <select id="jf-indent" class="select select-sm select-bordered text-xs h-8 min-h-0">
+  <div class="toolbar">
+    <span class="toolbar-label">Indent
+      <select id="jf-indent" class="glass-select">
         <option value="2">2 spaces</option>
         <option value="4">4 spaces</option>
         <option value="tab">Tab</option>
       </select>
-    </label>
-    <button class="btn btn-sm btn-primary font-bold" onclick="doFmt()">⚡ Format</button>
-    <button class="btn btn-sm btn-ghost opacity-60" onclick="clearPanel('jf-in','jf-out','jf-stats','jf-err')">✕ Clear</button>
-    <label class="btn btn-sm btn-ghost opacity-60 cursor-pointer">
-      📁 Load File
-      <input type="file" accept=".json,application/json" class="hidden" onchange="loadFileInto(this,'jf-in')">
-    </label>
+    </span>
+    <button class="btn-glass btn-primary" onclick="doFmt()">⚡ Format</button>
+    <button class="btn-glass btn-ghost" onclick="clearPanel('jf-in','jf-out','jf-stats','jf-err')">✕ Clear</button>
+    <label class="btn-glass btn-ghost" style="cursor:pointer;">📁 Load File<input type="file" accept=".json,application/json" class="hidden" onchange="loadFileInto(this,'jf-in')"></label>
   </div>
 
-  <div class="two-col mb-2">
-    <div>
-      <div class="drop-zone mb-0" id="jf-drop"
-           ondragover="dragOver(event,'jf-drop')" ondragleave="dragLeave('jf-drop')" ondrop="dropFile(event,'jf-drop','jf-in')">
-        <input type="file" accept=".json" onchange="loadFileInto(this,'jf-in')">
-        <span class="drop-icon">📂</span>
-        <div class="font-bold text-sm mb-1">Drag &amp; Drop JSON file</div>
-        <div class="text-xs opacity-60">or click to browse · or paste below</div>
-      </div>
+  <div class="two-col" style="margin-bottom:16px;">
+    <div class="drop-zone" ondragover="dragOver(event,'jf-dz')" ondragleave="dragLeave('jf-dz')" ondrop="dropFile(event,'jf-dz','jf-in')" id="jf-dz">
+      <input type="file" accept=".json" onchange="loadFileInto(this,'jf-in')">
+      <span class="drop-icon">📂</span>
+      <div class="drop-title">Drop JSON file here</div>
+      <div class="drop-sub">or click to browse</div>
     </div>
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>INPUT</span>
-        <div class="flex gap-1">
-          <button class="btn btn-xs btn-ghost opacity-60" onclick="copyEl('jf-in')">⎘ Copy</button>
-          <button class="btn btn-xs btn-ghost opacity-60" onclick="clearEl('jf-in')">✕</button>
-        </div>
+        <span class="ed-bar-title">Input</span>
+        <div style="display:flex;gap:5px;"><button class="btn-xs-glass" onclick="copyEl('jf-in')">⎘</button><button class="btn-xs-glass btn-danger-glass" onclick="clearEl('jf-in')">✕</button></div>
       </div>
-      <textarea class="code-in" id="jf-in" placeholder='{"name":"Dhruv","role":"developer","skills":["C#","Python","JS"]}'></textarea>
+      <textarea class="code-in" id="jf-in" placeholder='{"name":"Dhruv","role":"Developer","skills":["C#","Python"]}'></textarea>
     </div>
   </div>
-
   <div id="jf-err"></div>
-
-  <div class="ed-card mt-4">
+  <div class="ed-card">
     <div class="ed-bar">
       <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-      <span>FORMATTED OUTPUT</span>
-      <div class="flex gap-1">
-        <button class="btn btn-xs btn-ghost opacity-70" onclick="copyEl('jf-out')">⎘ Copy</button>
-        <button class="btn btn-xs btn-ghost opacity-70" onclick="downloadText('jf-out','formatted.json','application/json')">↓ .json</button>
+      <span class="ed-bar-title">Formatted Output</span>
+      <div style="display:flex;gap:5px;">
+        <button class="btn-xs-glass" onclick="copyEl('jf-out')">⎘ Copy</button>
+        <button class="btn-xs-glass" onclick="downloadText('jf-out','formatted.json','application/json')">↓ .json</button>
       </div>
     </div>
     <pre class="code-out" id="jf-out"></pre>
@@ -296,130 +768,112 @@ pre.code-out{white-space:pre-wrap;word-break:break-all;overflow-y:auto}
   </div>
 </div>
 
-<!-- ══════════ PANEL: JSON VALIDATOR ══════════ -->
+<!-- ══════════ JSON VALIDATOR ══════════ -->
 <div class="panel" id="panel-json-val">
-  <h1 class="font-syne text-2xl font-bold mb-1">JSON Validator</h1>
-  <p class="text-xs opacity-40 mb-5">Validate JSON syntax with detailed error messages. Supports drag &amp; drop.</p>
+  <div class="panel-title">JSON Validator</div>
+  <div class="panel-desc">Validate JSON syntax with precise error location and structure preview.</div>
 
-  <div class="flex flex-wrap gap-3 mb-4 items-center">
-    <button class="btn btn-sm btn-primary font-bold" onclick="doValidate()">✔ Validate</button>
-    <button class="btn btn-sm btn-ghost opacity-60" onclick="clearPanel('jv-in','','jv-res','')">✕ Clear</button>
-    <label class="btn btn-sm btn-ghost opacity-60 cursor-pointer">
-      📁 Load File
-      <input type="file" accept=".json" class="hidden" onchange="loadFileInto(this,'jv-in')">
-    </label>
+  <div class="toolbar">
+    <button class="btn-glass btn-primary" onclick="doValidate()">✔ Validate</button>
+    <button class="btn-glass btn-ghost" onclick="clearPanel('jv-in','','jv-res','')">✕ Clear</button>
+    <label class="btn-glass btn-ghost" style="cursor:pointer;">📁 Load File<input type="file" accept=".json" class="hidden" onchange="loadFileInto(this,'jv-in')"></label>
   </div>
 
-  <div class="drop-zone mb-4" id="jv-drop"
-       ondragover="dragOver(event,'jv-drop')" ondragleave="dragLeave('jv-drop')" ondrop="dropFile(event,'jv-drop','jv-in')">
+  <div class="drop-zone" style="margin-bottom:16px;" ondragover="dragOver(event,'jv-dz')" ondragleave="dragLeave('jv-dz')" ondrop="dropFile(event,'jv-dz','jv-in')" id="jv-dz">
     <input type="file" accept=".json" onchange="loadFileInto(this,'jv-in')">
     <span class="drop-icon">🔍</span>
-    <div class="font-bold text-sm mb-1">Drag &amp; Drop JSON file here</div>
-    <div class="text-xs opacity-60">or paste below</div>
+    <div class="drop-title">Drop JSON file here</div>
+    <div class="drop-sub">or paste below</div>
   </div>
 
-  <div class="ed-card mb-4">
+  <div class="ed-card" style="margin-bottom:16px;">
     <div class="ed-bar">
       <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-      <span>JSON INPUT</span>
-      <button class="btn btn-xs btn-ghost opacity-60" onclick="clearEl('jv-in')">✕ Clear</button>
+      <span class="ed-bar-title">JSON Input</span>
+      <button class="btn-xs-glass btn-danger-glass" onclick="clearEl('jv-in')">✕ Clear</button>
     </div>
-    <textarea class="code-in" id="jv-in" style="min-height:260px;" placeholder="Paste JSON here to validate..."></textarea>
+    <textarea class="code-in" id="jv-in" style="min-height:240px;" placeholder="Paste JSON here to validate..."></textarea>
   </div>
-
   <div id="jv-res"></div>
 </div>
 
-<!-- ══════════ PANEL: JSON MINIFIER ══════════ -->
+<!-- ══════════ JSON MINIFIER ══════════ -->
 <div class="panel" id="panel-json-min">
-  <h1 class="font-syne text-2xl font-bold mb-1">JSON Minifier</h1>
-  <p class="text-xs opacity-40 mb-5">Strip all whitespace and compress JSON to smallest form.</p>
+  <div class="panel-title">JSON Minifier</div>
+  <div class="panel-desc">Strip whitespace and compress JSON to the smallest possible form.</div>
 
-  <div class="flex flex-wrap gap-3 mb-4 items-center">
-    <button class="btn btn-sm btn-primary font-bold" onclick="doMinify()">⚡ Minify</button>
-    <button class="btn btn-sm btn-ghost opacity-60" onclick="clearPanel('jm-in','jm-out','jm-stats','jm-err')">✕ Clear</button>
-    <label class="btn btn-sm btn-ghost opacity-60 cursor-pointer">
-      📁 Load File
-      <input type="file" accept=".json" class="hidden" onchange="loadFileInto(this,'jm-in')">
-    </label>
+  <div class="toolbar">
+    <button class="btn-glass btn-primary" onclick="doMinify()">⚡ Minify</button>
+    <button class="btn-glass btn-ghost" onclick="clearPanel('jm-in','jm-out','jm-stats','jm-err')">✕ Clear</button>
+    <label class="btn-glass btn-ghost" style="cursor:pointer;">📁 Load File<input type="file" accept=".json" class="hidden" onchange="loadFileInto(this,'jm-in')"></label>
   </div>
 
   <div class="two-col">
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>INPUT</span>
-        <button class="btn btn-xs btn-ghost opacity-60" onclick="clearEl('jm-in')">✕</button>
+        <span class="ed-bar-title">Input</span>
+        <button class="btn-xs-glass btn-danger-glass" onclick="clearEl('jm-in')">✕</button>
       </div>
-      <textarea class="code-in" id="jm-in" placeholder="Paste formatted JSON..."></textarea>
+      <textarea class="code-in" id="jm-in" placeholder="Paste formatted JSON here..."></textarea>
     </div>
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>MINIFIED</span>
-        <div class="flex gap-1">
-          <button class="btn btn-xs btn-ghost opacity-70" onclick="copyEl('jm-out')">⎘ Copy</button>
-          <button class="btn btn-xs btn-ghost opacity-70" onclick="downloadText('jm-out','minified.json','application/json')">↓ .json</button>
+        <span class="ed-bar-title">Minified</span>
+        <div style="display:flex;gap:5px;">
+          <button class="btn-xs-glass" onclick="copyEl('jm-out')">⎘ Copy</button>
+          <button class="btn-xs-glass" onclick="downloadText('jm-out','minified.json','application/json')">↓ .json</button>
         </div>
       </div>
       <pre class="code-out" id="jm-out"></pre>
       <div class="stats-row" id="jm-stats"></div>
     </div>
   </div>
-  <div id="jm-err" class="mt-2"></div>
+  <div id="jm-err" style="margin-top:10px;"></div>
 </div>
 
-<!-- ══════════ PANEL: XML FORMATTER ══════════ -->
+<!-- ══════════ XML FORMATTER ══════════ -->
 <div class="panel" id="panel-xml-fmt">
-  <h1 class="font-syne text-2xl font-bold mb-1">XML Formatter</h1>
-  <p class="text-xs opacity-40 mb-5">Pretty-print and indent XML documents. Drag &amp; drop supported.</p>
+  <div class="panel-title">XML Formatter</div>
+  <div class="panel-desc">Pretty-print and indent XML documents with proper hierarchy.</div>
 
-  <div class="flex flex-wrap gap-3 mb-4 items-center">
-    <label class="flex items-center gap-2 text-xs opacity-60">
-      Indent
-      <select id="xf-indent" class="select select-sm select-bordered text-xs h-8 min-h-0">
+  <div class="toolbar">
+    <span class="toolbar-label">Indent
+      <select id="xf-indent" class="glass-select">
         <option value="2">2 spaces</option>
         <option value="4">4 spaces</option>
       </select>
-    </label>
-    <button class="btn btn-sm btn-primary font-bold" onclick="doXmlFmt()">⚡ Format</button>
-    <button class="btn btn-sm btn-ghost opacity-60" onclick="clearPanel('xf-in','xf-out','xf-stats','xf-err')">✕ Clear</button>
-    <label class="btn btn-sm btn-ghost opacity-60 cursor-pointer">
-      📁 Load File
-      <input type="file" accept=".xml,text/xml" class="hidden" onchange="loadFileInto(this,'xf-in')">
-    </label>
+    </span>
+    <button class="btn-glass btn-primary" onclick="doXmlFmt()">⚡ Format</button>
+    <button class="btn-glass btn-ghost" onclick="clearPanel('xf-in','xf-out','xf-stats','xf-err')">✕ Clear</button>
+    <label class="btn-glass btn-ghost" style="cursor:pointer;">📁 Load File<input type="file" accept=".xml,text/xml" class="hidden" onchange="loadFileInto(this,'xf-in')"></label>
   </div>
 
-  <div class="two-col mb-2">
-    <div>
-      <div class="drop-zone" id="xf-drop"
-           ondragover="dragOver(event,'xf-drop')" ondragleave="dragLeave('xf-drop')" ondrop="dropFile(event,'xf-drop','xf-in')">
-        <input type="file" accept=".xml" onchange="loadFileInto(this,'xf-in')">
-        <span class="drop-icon">📂</span>
-        <div class="font-bold text-sm mb-1">Drag &amp; Drop XML file</div>
-        <div class="text-xs opacity-60">or click to browse</div>
-      </div>
+  <div class="two-col" style="margin-bottom:16px;">
+    <div class="drop-zone" ondragover="dragOver(event,'xf-dz')" ondragleave="dragLeave('xf-dz')" ondrop="dropFile(event,'xf-dz','xf-in')" id="xf-dz">
+      <input type="file" accept=".xml" onchange="loadFileInto(this,'xf-in')">
+      <span class="drop-icon">📂</span>
+      <div class="drop-title">Drop XML file here</div>
+      <div class="drop-sub">or click to browse</div>
     </div>
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>INPUT XML</span>
-        <div class="flex gap-1">
-          <button class="btn btn-xs btn-ghost opacity-60" onclick="copyEl('xf-in')">⎘</button>
-          <button class="btn btn-xs btn-ghost opacity-60" onclick="clearEl('xf-in')">✕</button>
-        </div>
+        <span class="ed-bar-title">Input XML</span>
+        <div style="display:flex;gap:5px;"><button class="btn-xs-glass" onclick="copyEl('xf-in')">⎘</button><button class="btn-xs-glass btn-danger-glass" onclick="clearEl('xf-in')">✕</button></div>
       </div>
-      <textarea class="code-in" id="xf-in" placeholder='<root><item id="1"><name>Test</name></item></root>'></textarea>
+      <textarea class="code-in" id="xf-in" placeholder='<root><item id="1"><n>Test</n></item></root>'></textarea>
     </div>
   </div>
   <div id="xf-err"></div>
-  <div class="ed-card mt-4">
+  <div class="ed-card">
     <div class="ed-bar">
       <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-      <span>FORMATTED XML</span>
-      <div class="flex gap-1">
-        <button class="btn btn-xs btn-ghost opacity-70" onclick="copyEl('xf-out')">⎘ Copy</button>
-        <button class="btn btn-xs btn-ghost opacity-70" onclick="downloadText('xf-out','formatted.xml','application/xml')">↓ .xml</button>
+      <span class="ed-bar-title">Formatted XML</span>
+      <div style="display:flex;gap:5px;">
+        <button class="btn-xs-glass" onclick="copyEl('xf-out')">⎘ Copy</button>
+        <button class="btn-xs-glass" onclick="downloadText('xf-out','formatted.xml','application/xml')">↓ .xml</button>
       </div>
     </div>
     <pre class="code-out" id="xf-out"></pre>
@@ -427,142 +881,124 @@ pre.code-out{white-space:pre-wrap;word-break:break-all;overflow-y:auto}
   </div>
 </div>
 
-<!-- ══════════ PANEL: XML → JSON ══════════ -->
+<!-- ══════════ XML → JSON ══════════ -->
 <div class="panel" id="panel-xml-json">
-  <h1 class="font-syne text-2xl font-bold mb-1">XML → JSON</h1>
-  <p class="text-xs opacity-40 mb-5">Convert XML documents to JSON format.</p>
+  <div class="panel-title">XML → JSON</div>
+  <div class="panel-desc">Convert XML documents to structured JSON format.</div>
 
-  <div class="flex flex-wrap gap-3 mb-4 items-center">
-    <button class="btn btn-sm btn-primary font-bold" onclick="doXml2Json()">⇄ Convert</button>
-    <button class="btn btn-sm btn-ghost opacity-60" onclick="clearPanel('xj-in','xj-out','','xj-err')">✕ Clear</button>
-    <label class="btn btn-sm btn-ghost opacity-60 cursor-pointer">
-      📁 Load File
-      <input type="file" accept=".xml" class="hidden" onchange="loadFileInto(this,'xj-in')">
-    </label>
+  <div class="toolbar">
+    <button class="btn-glass btn-primary" onclick="doXml2Json()">⇄ Convert</button>
+    <button class="btn-glass btn-ghost" onclick="clearPanel('xj-in','xj-out','','xj-err')">✕ Clear</button>
+    <label class="btn-glass btn-ghost" style="cursor:pointer;">📁 Load File<input type="file" accept=".xml" class="hidden" onchange="loadFileInto(this,'xj-in')"></label>
   </div>
 
-  <div class="two-col mb-2">
-    <div>
-      <div class="drop-zone" ondragover="dragOver(event,'xj-drop')" ondragleave="dragLeave('xj-drop')" ondrop="dropFile(event,'xj-drop','xj-in')" id="xj-drop">
-        <input type="file" accept=".xml" onchange="loadFileInto(this,'xj-in')">
-        <span class="drop-icon">📂</span>
-        <div class="font-bold text-sm mb-1">Drag &amp; Drop XML</div>
-        <div class="text-xs opacity-60">or click to browse</div>
-      </div>
+  <div class="two-col" style="margin-bottom:16px;">
+    <div class="drop-zone" ondragover="dragOver(event,'xj-dz')" ondragleave="dragLeave('xj-dz')" ondrop="dropFile(event,'xj-dz','xj-in')" id="xj-dz">
+      <input type="file" accept=".xml" onchange="loadFileInto(this,'xj-in')">
+      <span class="drop-icon">📂</span>
+      <div class="drop-title">Drop XML file here</div>
+      <div class="drop-sub">or click to browse</div>
     </div>
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>INPUT XML</span>
-        <button class="btn btn-xs btn-ghost opacity-60" onclick="clearEl('xj-in')">✕</button>
+        <span class="ed-bar-title">Input XML</span>
+        <button class="btn-xs-glass btn-danger-glass" onclick="clearEl('xj-in')">✕</button>
       </div>
       <textarea class="code-in" id="xj-in" placeholder='<person><name>Dhruv</name><role>Developer</role></person>'></textarea>
     </div>
   </div>
   <div id="xj-err"></div>
-  <div class="ed-card mt-4">
+  <div class="ed-card">
     <div class="ed-bar">
       <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-      <span>OUTPUT JSON</span>
-      <div class="flex gap-1">
-        <button class="btn btn-xs btn-ghost opacity-70" onclick="copyEl('xj-out')">⎘ Copy</button>
-        <button class="btn btn-xs btn-ghost opacity-70" onclick="downloadText('xj-out','converted.json','application/json')">↓ .json</button>
+      <span class="ed-bar-title">JSON Output</span>
+      <div style="display:flex;gap:5px;">
+        <button class="btn-xs-glass" onclick="copyEl('xj-out')">⎘ Copy</button>
+        <button class="btn-xs-glass" onclick="downloadText('xj-out','converted.json','application/json')">↓ .json</button>
       </div>
     </div>
     <pre class="code-out" id="xj-out"></pre>
   </div>
 </div>
 
-<!-- ══════════ PANEL: JSON → XML ══════════ -->
+<!-- ══════════ JSON → XML ══════════ -->
 <div class="panel" id="panel-json-xml">
-  <h1 class="font-syne text-2xl font-bold mb-1">JSON → XML</h1>
-  <p class="text-xs opacity-40 mb-5">Convert JSON objects to XML format.</p>
+  <div class="panel-title">JSON → XML</div>
+  <div class="panel-desc">Convert JSON objects to valid XML format with a custom root tag.</div>
 
-  <div class="flex flex-wrap gap-3 mb-4 items-center">
-    <label class="flex items-center gap-2 text-xs opacity-60">
-      Root tag
-      <input id="jx-root" type="text" value="root" class="input input-sm input-bordered text-xs w-24 h-8 min-h-0"/>
-    </label>
-    <button class="btn btn-sm btn-primary font-bold" onclick="doJson2Xml()">⇄ Convert</button>
-    <button class="btn btn-sm btn-ghost opacity-60" onclick="clearPanel('jx-in','jx-out','','jx-err')">✕ Clear</button>
-    <label class="btn btn-sm btn-ghost opacity-60 cursor-pointer">
-      📁 Load File
-      <input type="file" accept=".json" class="hidden" onchange="loadFileInto(this,'jx-in')">
-    </label>
+  <div class="toolbar">
+    <span class="toolbar-label">Root tag
+      <input id="jx-root" type="text" value="root" class="glass-input-sm" style="width:100px;"/>
+    </span>
+    <button class="btn-glass btn-primary" onclick="doJson2Xml()">⇄ Convert</button>
+    <button class="btn-glass btn-ghost" onclick="clearPanel('jx-in','jx-out','','jx-err')">✕ Clear</button>
+    <label class="btn-glass btn-ghost" style="cursor:pointer;">📁 Load File<input type="file" accept=".json" class="hidden" onchange="loadFileInto(this,'jx-in')"></label>
   </div>
 
-  <div class="two-col mb-2">
-    <div>
-      <div class="drop-zone" ondragover="dragOver(event,'jx-drop')" ondragleave="dragLeave('jx-drop')" ondrop="dropFile(event,'jx-drop','jx-in')" id="jx-drop">
-        <input type="file" accept=".json" onchange="loadFileInto(this,'jx-in')">
-        <span class="drop-icon">📂</span>
-        <div class="font-bold text-sm mb-1">Drag &amp; Drop JSON</div>
-        <div class="text-xs opacity-60">or click to browse</div>
-      </div>
+  <div class="two-col" style="margin-bottom:16px;">
+    <div class="drop-zone" ondragover="dragOver(event,'jx-dz')" ondragleave="dragLeave('jx-dz')" ondrop="dropFile(event,'jx-dz','jx-in')" id="jx-dz">
+      <input type="file" accept=".json" onchange="loadFileInto(this,'jx-in')">
+      <span class="drop-icon">📂</span>
+      <div class="drop-title">Drop JSON file here</div>
+      <div class="drop-sub">or click to browse</div>
     </div>
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>INPUT JSON</span>
-        <button class="btn btn-xs btn-ghost opacity-60" onclick="clearEl('jx-in')">✕</button>
+        <span class="ed-bar-title">Input JSON</span>
+        <button class="btn-xs-glass btn-danger-glass" onclick="clearEl('jx-in')">✕</button>
       </div>
       <textarea class="code-in" id="jx-in" placeholder='{"name":"Dhruv","role":"Developer","active":true}'></textarea>
     </div>
   </div>
   <div id="jx-err"></div>
-  <div class="ed-card mt-4">
+  <div class="ed-card">
     <div class="ed-bar">
       <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-      <span>OUTPUT XML</span>
-      <div class="flex gap-1">
-        <button class="btn btn-xs btn-ghost opacity-70" onclick="copyEl('jx-out')">⎘ Copy</button>
-        <button class="btn btn-xs btn-ghost opacity-70" onclick="downloadText('jx-out','converted.xml','application/xml')">↓ .xml</button>
+      <span class="ed-bar-title">XML Output</span>
+      <div style="display:flex;gap:5px;">
+        <button class="btn-xs-glass" onclick="copyEl('jx-out')">⎘ Copy</button>
+        <button class="btn-xs-glass" onclick="downloadText('jx-out','converted.xml','application/xml')">↓ .xml</button>
       </div>
     </div>
     <pre class="code-out" id="jx-out"></pre>
   </div>
 </div>
 
-<!-- ══════════ PANEL: BASE64 ENCODE ══════════ -->
+<!-- ══════════ BASE64 ENCODE ══════════ -->
 <div class="panel" id="panel-b64-enc">
-  <h1 class="font-syne text-2xl font-bold mb-1">Base64 Encode</h1>
-  <p class="text-xs opacity-40 mb-5">Encode text or any file to Base64. Drag &amp; drop any file.</p>
+  <div class="panel-title">Base64 Encode</div>
+  <div class="panel-desc">Encode text or any binary file (images, PDFs, docs) to Base64 string.</div>
 
-  <div class="flex flex-wrap gap-3 mb-4 items-center">
-    <button class="btn btn-sm btn-primary font-bold" onclick="doB64Encode()">↑ Encode</button>
-    <button class="btn btn-sm btn-ghost opacity-60" onclick="clearPanel('be-in','be-out','be-stats','')">✕ Clear</button>
-    <label class="btn btn-sm btn-ghost opacity-60 cursor-pointer">
-      📁 Load File
-      <input type="file" id="be-file-input" class="hidden" onchange="loadBinaryFileForB64(this,'be-out','be-stats')">
-    </label>
+  <div class="toolbar">
+    <button class="btn-glass btn-primary" onclick="doB64Encode()">↑ Encode Text</button>
+    <button class="btn-glass btn-ghost" onclick="clearPanel('be-in','be-out','be-stats','')">✕ Clear</button>
   </div>
 
-  <div class="mb-4">
-    <div class="drop-zone" id="be-drop"
-         ondragover="dragOver(event,'be-drop')" ondragleave="dragLeave('be-drop')" ondrop="dropBinaryFile(event,'be-drop','be-out','be-stats')">
-      <input type="file" onchange="loadBinaryFileForB64(this,'be-out','be-stats')">
-      <span class="drop-icon">📂</span>
-      <div class="font-bold text-sm mb-1">Drag &amp; Drop any file to encode</div>
-      <div class="text-xs opacity-60">images, PDFs, docs — any binary file</div>
-    </div>
+  <div class="drop-zone" style="margin-bottom:16px;" ondragover="dragOver(event,'be-dz')" ondragleave="dragLeave('be-dz')" ondrop="dropBinaryFile(event,'be-dz','be-out','be-stats')" id="be-dz">
+    <input type="file" onchange="loadBinaryFileForB64(this,'be-out','be-stats')">
+    <span class="drop-icon">📂</span>
+    <div class="drop-title">Drop any file to encode</div>
+    <div class="drop-sub">images, PDFs, docs — any binary file</div>
   </div>
 
   <div class="two-col">
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>TEXT INPUT (optional)</span>
-        <button class="btn btn-xs btn-ghost opacity-60" onclick="clearEl('be-in')">✕</button>
+        <span class="ed-bar-title">Text Input</span>
+        <button class="btn-xs-glass btn-danger-glass" onclick="clearEl('be-in')">✕</button>
       </div>
-      <textarea class="code-in" id="be-in" placeholder="Type or paste text to encode to Base64..."></textarea>
+      <textarea class="code-in" id="be-in" placeholder="Type or paste text to Base64 encode..."></textarea>
     </div>
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>BASE64 OUTPUT</span>
-        <div class="flex gap-1">
-          <button class="btn btn-xs btn-ghost opacity-70" onclick="copyEl('be-out')">⎘ Copy</button>
-          <button class="btn btn-xs btn-ghost opacity-70" onclick="downloadText('be-out','encoded.b64','text/plain')">↓ .b64</button>
+        <span class="ed-bar-title">Base64 Output</span>
+        <div style="display:flex;gap:5px;">
+          <button class="btn-xs-glass" onclick="copyEl('be-out')">⎘ Copy</button>
+          <button class="btn-xs-glass" onclick="downloadText('be-out','encoded.b64','text/plain')">↓ .b64</button>
         </div>
       </div>
       <pre class="code-out" id="be-out"></pre>
@@ -571,125 +1007,102 @@ pre.code-out{white-space:pre-wrap;word-break:break-all;overflow-y:auto}
   </div>
 </div>
 
-<!-- ══════════ PANEL: BASE64 DECODE ══════════ -->
+<!-- ══════════ BASE64 DECODE ══════════ -->
 <div class="panel" id="panel-b64-dec">
-  <h1 class="font-syne text-2xl font-bold mb-1">Base64 Decode</h1>
-  <p class="text-xs opacity-40 mb-5">Decode Base64 back to text or download as binary file.</p>
+  <div class="panel-title">Base64 Decode</div>
+  <div class="panel-desc">Decode Base64 back to text or download as binary file.</div>
 
-  <div class="flex flex-wrap gap-3 mb-4 items-center">
-    <button class="btn btn-sm btn-primary font-bold" onclick="doB64Decode()">↓ Decode</button>
-    <button class="btn btn-sm btn-ghost opacity-60" onclick="clearPanel('bd-in','bd-out','bd-stats','bd-err')">✕ Clear</button>
-    <label class="btn btn-sm btn-ghost opacity-60 cursor-pointer">
-      📁 Load .b64 File
-      <input type="file" accept=".b64,.txt" class="hidden" onchange="loadFileInto(this,'bd-in')">
-    </label>
+  <div class="toolbar">
+    <button class="btn-glass btn-primary" onclick="doB64Decode()">↓ Decode</button>
+    <button class="btn-glass btn-ghost" onclick="clearPanel('bd-in','bd-out','bd-stats','bd-err')">✕ Clear</button>
+    <label class="btn-glass btn-ghost" style="cursor:pointer;">📁 Load .b64<input type="file" accept=".b64,.txt" class="hidden" onchange="loadFileInto(this,'bd-in')"></label>
   </div>
 
-  <div class="mb-4">
-    <div class="drop-zone" id="bd-drop"
-         ondragover="dragOver(event,'bd-drop')" ondragleave="dragLeave('bd-drop')" ondrop="dropFile(event,'bd-drop','bd-in')">
-      <input type="file" accept=".b64,.txt" onchange="loadFileInto(this,'bd-in')">
-      <span class="drop-icon">📂</span>
-      <div class="font-bold text-sm mb-1">Drag &amp; Drop .b64 or .txt file</div>
-      <div class="text-xs opacity-60">or paste Base64 string below</div>
-    </div>
+  <div class="drop-zone" style="margin-bottom:16px;" ondragover="dragOver(event,'bd-dz')" ondragleave="dragLeave('bd-dz')" ondrop="dropFile(event,'bd-dz','bd-in')" id="bd-dz">
+    <input type="file" accept=".b64,.txt" onchange="loadFileInto(this,'bd-in')">
+    <span class="drop-icon">📂</span>
+    <div class="drop-title">Drop .b64 or .txt file</div>
+    <div class="drop-sub">or paste Base64 string below</div>
   </div>
 
   <div class="two-col">
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>BASE64 INPUT</span>
-        <button class="btn btn-xs btn-ghost opacity-60" onclick="clearEl('bd-in')">✕</button>
+        <span class="ed-bar-title">Base64 Input</span>
+        <button class="btn-xs-glass btn-danger-glass" onclick="clearEl('bd-in')">✕</button>
       </div>
       <textarea class="code-in" id="bd-in" placeholder="Paste Base64 encoded string here..."></textarea>
     </div>
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>DECODED TEXT</span>
-        <div class="flex gap-1">
-          <button class="btn btn-xs btn-ghost opacity-70" onclick="copyEl('bd-out')">⎘ Copy</button>
-          <button class="btn btn-xs btn-ghost opacity-70" onclick="downloadDecodedBinary('bd-in')">↓ Binary</button>
+        <span class="ed-bar-title">Decoded Text</span>
+        <div style="display:flex;gap:5px;">
+          <button class="btn-xs-glass" onclick="copyEl('bd-out')">⎘ Copy</button>
+          <button class="btn-xs-glass" onclick="downloadDecodedBinary('bd-in')">↓ Binary</button>
         </div>
       </div>
       <pre class="code-out" id="bd-out"></pre>
       <div class="stats-row" id="bd-stats"></div>
     </div>
   </div>
-  <div id="bd-err" class="mt-2"></div>
+  <div id="bd-err" style="margin-top:10px;"></div>
 </div>
 
-<!-- ══════════ PANEL: BASE64 → PDF ══════════ -->
+<!-- ══════════ BASE64 → PDF ══════════ -->
 <div class="panel" id="panel-b64-pdf">
-  <h1 class="font-syne text-2xl font-bold mb-1">Base64 → PDF</h1>
-  <p class="text-xs opacity-40 mb-5">Paste a Base64 string representing a PDF to preview &amp; download it.</p>
+  <div class="panel-title">Base64 → PDF</div>
+  <div class="panel-desc">Convert a Base64 string to PDF — download directly or open in browser.</div>
 
-  <div class="flex flex-wrap gap-3 mb-4 items-center">
-    <button class="btn btn-sm btn-primary font-bold" onclick="doB64ToPdf()">📄 Preview PDF</button>
-    <button class="btn btn-sm btn-secondary font-bold" onclick="downloadB64AsPdf()">↓ Download PDF</button>
-    <button class="btn btn-sm btn-ghost opacity-60" onclick="clearB64Pdf()">✕ Clear</button>
-    <label class="btn btn-sm btn-ghost opacity-60 cursor-pointer">
-      📁 Load .b64 File
-      <input type="file" accept=".b64,.txt" class="hidden" onchange="loadFileInto(this,'bp-in')">
-    </label>
+  <div class="toolbar">
+    <button class="btn-glass btn-primary" onclick="doB64ToPdf()">📄 Render &amp; Download PDF</button>
+    <button class="btn-glass btn-ghost" onclick="clearB64Pdf()">✕ Clear</button>
+    <label class="btn-glass btn-ghost" style="cursor:pointer;">📁 Load .b64<input type="file" accept=".b64,.txt" class="hidden" onchange="loadFileInto(this,'bp-in')"></label>
   </div>
 
-  <div class="mb-4">
-    <div class="drop-zone" id="bp-drop"
-         ondragover="dragOver(event,'bp-drop')" ondragleave="dragLeave('bp-drop')" ondrop="dropFile(event,'bp-drop','bp-in')">
-      <input type="file" accept=".b64,.txt" onchange="loadFileInto(this,'bp-in')">
-      <span class="drop-icon">📄</span>
-      <div class="font-bold text-sm mb-1">Drag &amp; Drop Base64 text file</div>
-      <div class="text-xs opacity-60">or paste the Base64 string below</div>
-    </div>
+  <div class="drop-zone" style="margin-bottom:16px;" ondragover="dragOver(event,'bp-dz')" ondragleave="dragLeave('bp-dz')" ondrop="dropFile(event,'bp-dz','bp-in')" id="bp-dz">
+    <input type="file" accept=".b64,.txt" onchange="loadFileInto(this,'bp-in')">
+    <span class="drop-icon">📄</span>
+    <div class="drop-title">Drop Base64 text file here</div>
+    <div class="drop-sub">or paste the Base64 string below</div>
   </div>
 
-  <div class="ed-card mb-4">
+  <div class="ed-card" style="margin-bottom:16px;">
     <div class="ed-bar">
       <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-      <span>BASE64 PDF STRING</span>
-      <button class="btn btn-xs btn-ghost opacity-60" onclick="clearEl('bp-in')">✕</button>
+      <span class="ed-bar-title">Base64 PDF String</span>
+      <button class="btn-xs-glass btn-danger-glass" onclick="clearEl('bp-in')">✕</button>
     </div>
     <textarea class="code-in" id="bp-in" style="min-height:120px;" placeholder="Paste Base64-encoded PDF string here..."></textarea>
   </div>
 
-  <div id="bp-err" class="mb-4"></div>
-
-  <div id="bp-preview-wrap" style="display:none">
-    <div class="ed-bar" style="border-radius:10px 10px 0 0;background:oklch(var(--b3));border:1px solid oklch(var(--bc)/0.08);border-bottom:none;padding:8px 14px">
-      <span class="text-xs opacity-40 uppercase tracking-widest">PDF PREVIEW</span>
-      <button class="btn btn-xs btn-ghost opacity-70" onclick="downloadB64AsPdf()">↓ Download PDF</button>
-    </div>
-    <iframe id="bp-frame" style="width:100%;height:520px;border:1px solid oklch(var(--bc)/0.08);border-radius:0 0 10px 10px;background:#fff"></iframe>
-  </div>
+  <div id="bp-err"></div>
+  <div id="bp-info"></div>
 </div>
 
-<!-- ══════════ PANEL: PDF → BASE64 ══════════ -->
+<!-- ══════════ PDF → BASE64 ══════════ -->
 <div class="panel" id="panel-pdf-b64">
-  <h1 class="font-syne text-2xl font-bold mb-1">PDF → Base64</h1>
-  <p class="text-xs opacity-40 mb-5">Upload or drag &amp; drop a PDF file to convert it to a Base64 string.</p>
+  <div class="panel-title">PDF → Base64</div>
+  <div class="panel-desc">Upload a PDF file and convert it to a Base64 encoded string.</div>
 
-  <div class="mb-5">
-    <div class="drop-zone" id="pb-drop"
-         ondragover="dragOver(event,'pb-drop')" ondragleave="dragLeave('pb-drop')" ondrop="dropPdfToB64(event,'pb-drop')">
-      <input type="file" accept="application/pdf,.pdf" onchange="pdfToB64(this)">
-      <span class="drop-icon">📤</span>
-      <div class="font-bold text-sm mb-1">Drag &amp; Drop PDF file here</div>
-      <div class="text-xs opacity-60">or click to browse — max ~50MB recommended</div>
-    </div>
+  <div class="drop-zone" style="margin-bottom:20px;" ondragover="dragOver(event,'pb-dz')" ondragleave="dragLeave('pb-dz')" ondrop="dropPdfToB64(event,'pb-dz')" id="pb-dz">
+    <input type="file" accept="application/pdf,.pdf" onchange="pdfToB64(this)">
+    <span class="drop-icon">📤</span>
+    <div class="drop-title">Drop PDF file here</div>
+    <div class="drop-sub">or click to browse · max ~50MB recommended</div>
   </div>
 
-  <div id="pb-info" class="mb-3"></div>
+  <div id="pb-info" style="margin-bottom:12px;"></div>
 
   <div class="ed-card">
     <div class="ed-bar">
       <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-      <span>BASE64 OUTPUT</span>
-      <div class="flex gap-1">
-        <button class="btn btn-xs btn-ghost opacity-70" onclick="copyEl('pb-out')">⎘ Copy</button>
-        <button class="btn btn-xs btn-ghost opacity-70" onclick="downloadText('pb-out','pdf_encoded.b64','text/plain')">↓ .b64</button>
-        <button class="btn btn-xs btn-ghost opacity-70" onclick="downloadText('pb-out','pdf_encoded.txt','text/plain')">↓ .txt</button>
+      <span class="ed-bar-title">Base64 Output</span>
+      <div style="display:flex;gap:5px;">
+        <button class="btn-xs-glass" onclick="copyEl('pb-out')">⎘ Copy</button>
+        <button class="btn-xs-glass" onclick="downloadText('pb-out','pdf_encoded.b64','text/plain')">↓ .b64</button>
+        <button class="btn-xs-glass" onclick="downloadText('pb-out','pdf_encoded.txt','text/plain')">↓ .txt</button>
       </div>
     </div>
     <pre class="code-out" id="pb-out" style="min-height:240px;"></pre>
@@ -697,15 +1110,14 @@ pre.code-out{white-space:pre-wrap;word-break:break-all;overflow-y:auto}
   </div>
 </div>
 
-<!-- ══════════ PANEL: ESCAPE / UNESCAPE ══════════ -->
+<!-- ══════════ ESCAPE / UNESCAPE ══════════ -->
 <div class="panel" id="panel-escape">
-  <h1 class="font-syne text-2xl font-bold mb-1">Escape / Unescape</h1>
-  <p class="text-xs opacity-40 mb-5">Escape or unescape special characters in JSON, XML, HTML, and raw strings.</p>
+  <div class="panel-title">Escape / Unescape</div>
+  <div class="panel-desc">Handle special characters in JSON, XML, HTML, URLs, and raw strings.</div>
 
-  <div class="flex flex-wrap gap-3 mb-4 items-center">
-    <label class="flex items-center gap-2 text-xs opacity-60">
-      Mode
-      <select id="esc-mode" class="select select-sm select-bordered text-xs h-8 min-h-0">
+  <div class="toolbar">
+    <span class="toolbar-label">Mode
+      <select id="esc-mode" class="glass-select">
         <option value="json-esc">JSON Escape</option>
         <option value="json-unesc">JSON Unescape</option>
         <option value="xml-esc">XML Escape</option>
@@ -714,128 +1126,109 @@ pre.code-out{white-space:pre-wrap;word-break:break-all;overflow-y:auto}
         <option value="html-unesc">HTML Unescape</option>
         <option value="url-enc">URL Encode</option>
         <option value="url-dec">URL Decode</option>
-        <option value="raw-esc">Raw → \\n\\r\\t</option>
-        <option value="raw-unesc">\\n\\r\\t → Raw</option>
+        <option value="raw-esc">Raw → \n\r\t</option>
+        <option value="raw-unesc">\n\r\t → Raw</option>
       </select>
-    </label>
-    <button class="btn btn-sm btn-primary font-bold" onclick="doEscape()">⚡ Run</button>
-    <button class="btn btn-sm btn-ghost opacity-60" onclick="clearPanel('esc-in','esc-out','','')">✕ Clear</button>
+    </span>
+    <button class="btn-glass btn-primary" onclick="doEscape()">⚡ Run</button>
+    <button class="btn-glass btn-ghost" onclick="clearPanel('esc-in','esc-out','','')">✕ Clear</button>
   </div>
 
-  <div class="two-col">
+  <div class="two-col" style="margin-bottom:20px;">
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>INPUT</span>
-        <button class="btn btn-xs btn-ghost opacity-60" onclick="clearEl('esc-in')">✕</button>
+        <span class="ed-bar-title">Input</span>
+        <button class="btn-xs-glass btn-danger-glass" onclick="clearEl('esc-in')">✕</button>
       </div>
       <textarea class="code-in" id="esc-in" placeholder='He said "Hello\nWorld" & she replied <OK>'></textarea>
     </div>
     <div class="ed-card">
       <div class="ed-bar">
         <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-        <span>OUTPUT</span>
-        <div class="flex gap-1">
-          <button class="btn btn-xs btn-ghost opacity-70" onclick="copyEl('esc-out')">⎘ Copy</button>
-          <button class="btn btn-xs btn-ghost opacity-70" onclick="downloadText('esc-out','escaped.txt','text/plain')">↓ .txt</button>
+        <span class="ed-bar-title">Output</span>
+        <div style="display:flex;gap:5px;">
+          <button class="btn-xs-glass" onclick="copyEl('esc-out')">⎘ Copy</button>
+          <button class="btn-xs-glass" onclick="downloadText('esc-out','escaped.txt','text/plain')">↓ .txt</button>
         </div>
       </div>
       <pre class="code-out" id="esc-out"></pre>
     </div>
   </div>
 
-  <div class="mt-5 grid grid-cols-2 md:grid-cols-4 gap-3">
-    <div class="ed-card p-3">
-      <div class="text-xs font-bold opacity-50 mb-2 uppercase tracking-wider">JSON chars</div>
-      <div class="text-xs opacity-60 leading-6">
-        <code>" → \"</code><br>
-        <code>\ → \\</code><br>
-        <code>newline → \n</code><br>
-        <code>tab → \t</code><br>
-        <code>return → \r</code>
-      </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+    <div class="ed-card ref-card">
+      <h4>JSON</h4>
+      <div class="ref-row"><code>" → \"</code></div>
+      <div class="ref-row"><code>\ → \\</code></div>
+      <div class="ref-row"><code>newline → \n</code></div>
+      <div class="ref-row"><code>tab → \t</code></div>
+      <div class="ref-row"><code>return → \r</code></div>
     </div>
-    <div class="ed-card p-3">
-      <div class="text-xs font-bold opacity-50 mb-2 uppercase tracking-wider">XML chars</div>
-      <div class="text-xs opacity-60 leading-6">
-        <code>&amp; → &amp;amp;</code><br>
-        <code>&lt; → &amp;lt;</code><br>
-        <code>&gt; → &amp;gt;</code><br>
-        <code>" → &amp;quot;</code><br>
-        <code>' → &amp;apos;</code>
-      </div>
+    <div class="ed-card ref-card">
+      <h4>XML</h4>
+      <div class="ref-row"><code>&amp; → &amp;amp;</code></div>
+      <div class="ref-row"><code>&lt; → &amp;lt;</code></div>
+      <div class="ref-row"><code>&gt; → &amp;gt;</code></div>
+      <div class="ref-row"><code>" → &amp;quot;</code></div>
+      <div class="ref-row"><code>' → &amp;apos;</code></div>
     </div>
-    <div class="ed-card p-3">
-      <div class="text-xs font-bold opacity-50 mb-2 uppercase tracking-wider">HTML chars</div>
-      <div class="text-xs opacity-60 leading-6">
-        <code>&amp; → &amp;amp;</code><br>
-        <code>&lt; → &amp;lt;</code><br>
-        <code>&gt; → &amp;gt;</code><br>
-        <code>" → &amp;quot;</code><br>
-        <code>space → &amp;nbsp;</code>
-      </div>
+    <div class="ed-card ref-card">
+      <h4>HTML</h4>
+      <div class="ref-row"><code>&amp; → &amp;amp;</code></div>
+      <div class="ref-row"><code>&lt; → &amp;lt;</code></div>
+      <div class="ref-row"><code>&gt; → &amp;gt;</code></div>
+      <div class="ref-row"><code>" → &amp;quot;</code></div>
+      <div class="ref-row"><code>' → &amp;#39;</code></div>
     </div>
-    <div class="ed-card p-3">
-      <div class="text-xs font-bold opacity-50 mb-2 uppercase tracking-wider">Raw escapes</div>
-      <div class="text-xs opacity-60 leading-6">
-        <code>\n → newline</code><br>
-        <code>\r → return</code><br>
-        <code>\t → tab</code><br>
-        <code>\0 → null</code><br>
-        <code>\\ → backslash</code>
-      </div>
+    <div class="ed-card ref-card">
+      <h4>Raw Chars</h4>
+      <div class="ref-row"><code>\n → newline</code></div>
+      <div class="ref-row"><code>\r → return</code></div>
+      <div class="ref-row"><code>\t → tab</code></div>
+      <div class="ref-row"><code>\0 → null</code></div>
+      <div class="ref-row"><code>\\ → backslash</code></div>
     </div>
   </div>
 </div>
 
-</main><!-- end main-scroll -->
+</main>
 </div><!-- end flex -->
 
 <script>
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // THEME SYSTEM
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 const THEMES = [
-  { id:'night',    label:'Night',    colors:['#1d232a','#0f3460','#e94560'] },
-  { id:'dracula',  label:'Dracula',  colors:['#282a36','#bd93f9','#ff79c6'] },
-  { id:'forest',   label:'Forest',   colors:['#171212','#1eb854','#1db88e'] },
-  { id:'black',    label:'Black',    colors:['#000','#343232','#ff6b6b'] },
-  { id:'luxury',   label:'Luxury',   colors:['#09090b','#ffffff','#c0a86e'] },
-  { id:'business', label:'Business', colors:['#1b2430','#1c4ed8','#38bdf8'] },
-  { id:'cyberpunk',label:'Cyber',    colors:['#ffee00','#ff7598','#75d1f0'] },
-  { id:'cupcake',  label:'Cupcake',  colors:['#faf7f5','#65c3c8','#ef9fbc'] },
-  { id:'lemonade', label:'Lemon',    colors:['#ffffff','#519903','#e9e92f'] },
-  { id:'corporate',label:'Corp',     colors:['#ffffff','#4b6bfb','#7b92b2'] },
-  { id:'retro',    label:'Retro',    colors:['#e4d8b4','#ef9995','#a4cbb4'] },
-  { id:'aqua',     label:'Aqua',     colors:['#345da7','#00b4d8','#31c4be'] },
+  { id:'glass-dark', label:'Dark',     c:['#0f0f1a','#6366f1','#0ea5e9'] },
+  { id:'glass-light',label:'Light',    c:['#e8f0fe','#4f46e5','#0284c7'] },
+  { id:'midnight',   label:'Indigo',   c:['#020617','#8b5cf6','#ec4899'] },
+  { id:'aurora',     label:'Aurora',   c:['#011716','#10b981','#06b6d4'] },
+  { id:'rosegold',   label:'Rose',     c:['#1a0a0e','#f472b6','#fbbf24'] },
+  { id:'slate',      label:'Slate',    c:['#0c0d0f','#94a3b8','#64748b'] },
+  { id:'sand',       label:'Sand',     c:['#faf7f2','#d97706','#ea580c'] },
 ];
-
 function buildSwatches() {
-  const saved = localStorage.getItem('dtk-theme') || 'night';
+  const saved = localStorage.getItem('dtk3-theme') || 'glass-dark';
   document.documentElement.setAttribute('data-theme', saved);
   const grid = document.getElementById('swatchGrid');
   grid.innerHTML = '';
   THEMES.forEach(t => {
-    const el = document.createElement('div');
-    el.className = 'theme-swatch' + (t.id === saved ? ' active' : '');
-    el.title = t.label;
-    el.onclick = () => applyTheme(t.id);
-    el.innerHTML = `
-      <div class="swatch-prev">
-        <div class="sw-c" style="background:${t.colors[0]}"></div>
-        <div class="sw-c" style="background:${t.colors[1]}"></div>
-        <div class="sw-c" style="background:${t.colors[2]}"></div>
-      </div>
-      <div class="swatch-lbl">${t.label}</div>`;
-    grid.appendChild(el);
+    const d = document.createElement('div');
+    d.className = 'theme-swatch' + (t.id === saved ? ' active' : '');
+    d.title = t.label;
+    d.onclick = () => applyTheme(t.id);
+    d.innerHTML = `<div class="sw-prev"><div class="sw-c" style="background:${t.c[0]}"></div><div class="sw-c" style="background:${t.c[1]}"></div><div class="sw-c" style="background:${t.c[2]}"></div></div><div class="sw-lbl">${t.label}</div>`;
+    grid.appendChild(d);
   });
 }
 function applyTheme(id) {
   document.documentElement.setAttribute('data-theme', id);
-  localStorage.setItem('dtk-theme', id);
+  localStorage.setItem('dtk3-theme', id);
   document.querySelectorAll('.theme-swatch').forEach(s => {
     s.classList.toggle('active', s.title === THEMES.find(t=>t.id===id)?.label);
   });
+  document.getElementById('themeDD').classList.remove('open');
 }
 function toggleThemeDD(e) {
   e.stopPropagation();
@@ -844,15 +1237,15 @@ function toggleThemeDD(e) {
 document.addEventListener('click', () => document.getElementById('themeDD').classList.remove('open'));
 document.getElementById('themeDD').addEventListener('click', e => e.stopPropagation());
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // NAVIGATION
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function showTool(id, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.s-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
-  document.getElementById('navLabel').textContent = btn ? btn.textContent.trim() : id;
+  document.getElementById('navLabel').textContent = btn ? btn.textContent.trim() : '';
   closeSidebar();
   document.getElementById('mainScroll').scrollTop = 0;
 }
@@ -865,524 +1258,373 @@ function closeSidebar() {
   document.getElementById('mobOverlay').classList.remove('show');
 }
 
-// ═══════════════════════════════════════════════════
+// ── Show menu button on mobile ──
+function checkMobile() {
+  const isMob = window.innerWidth <= 768;
+  document.getElementById('menuBtn').style.display = isMob ? 'inline-flex' : 'none';
+  document.getElementById('navLabel').style.display = isMob ? 'block' : 'none';
+}
+checkMobile(); window.addEventListener('resize', checkMobile);
+
+// ═══════════════════════════════════════════════
 // TOAST
-// ═══════════════════════════════════════════════════
-let toastTimer;
-function toast(msg = '✓ Copied!', col) {
+// ═══════════════════════════════════════════════
+let _tt;
+function toast(msg, icon='✓') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  if (col) t.style.color = col;
+  document.getElementById('toast-msg').textContent = msg;
+  t.querySelector('.t-icon').textContent = icon;
   t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.classList.remove('show'); t.style.color = ''; }, 2200);
+  clearTimeout(_tt);
+  _tt = setTimeout(() => t.classList.remove('show'), 2400);
 }
 
-// ═══════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════
-function el(id) { return document.getElementById(id); }
-function val(id) { return el(id) ? (el(id).tagName === 'TEXTAREA' ? el(id).value : el(id).textContent) : ''; }
-function setOut(id, txt) { const e = el(id); if (e) { if (e.tagName==='TEXTAREA') e.value=txt; else e.textContent=txt; } }
-function clearEl(id) { setOut(id, ''); }
-function clearPanel(inId, outId, statsId, errId) {
-  [inId, outId, statsId].forEach(id => { if (id) clearEl(id); });
-  if (errId) { const e = el(errId); if (e) e.innerHTML = ''; }
-}
-function showErr(id, msg) {
-  const e = el(id); if (!e) return;
-  e.innerHTML = `<div class="alert alert-error text-xs p-3 rounded-lg mt-2 font-mono">⚠ ${escHtml(msg)}</div>`;
-}
-function clearErr(id) { const e = el(id); if (e) e.innerHTML = ''; }
-function showSuccess(id, msg) {
-  const e = el(id); if (!e) return;
-  e.innerHTML = `<div class="alert alert-success text-xs p-3 rounded-lg mt-2 font-mono">✔ ${escHtml(msg)}</div>`;
-}
-function setStats(id, pairs) {
-  const e = el(id); if (!e) return;
-  e.innerHTML = pairs.map(([k,v]) => `<span>${k}: <b>${v}</b></span>`).join('');
-}
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function sizeStr(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
-  return (bytes/1024/1024).toFixed(2) + ' MB';
-}
+// ═══════════════════════════════════════════════
+// CORE HELPERS
+// ═══════════════════════════════════════════════
+const el  = id => document.getElementById(id);
+const val = id => { const e = el(id); if (!e) return ''; return e.tagName==='TEXTAREA' ? e.value : e.textContent; };
+function setOut(id, txt) { const e = el(id); if (!e) return; e.tagName==='TEXTAREA' ? (e.value=txt) : (e.textContent=txt); }
+function clearEl(id) { setOut(id,''); }
+function clearPanel(a,b,c,d) { [a,b,c].forEach(id=>{if(id)clearEl(id);}); if(d){const e=el(d);if(e)e.innerHTML='';} }
+function showErr(id, msg) { const e=el(id); if(!e)return; e.innerHTML=`<div class="alert-glass alert-error"><span>⚠</span><span>${escHtml(msg)}</span></div>`; }
+function clearErr(id) { const e=el(id); if(e) e.innerHTML=''; }
+function showAlert(id, msg, type='success') { const e=el(id); if(!e)return; const icon=type==='success'?'✔':type==='error'?'✖':'ℹ'; e.innerHTML=`<div class="alert-glass alert-${type}"><span>${icon}</span><span>${msg}</span></div>`; }
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function sizeStr(n) { return n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB'; }
+function setStats(id, pairs) { const e=el(id); if(!e)return; e.innerHTML=pairs.map(([k,v])=>`<span>${k}: <b>${v}</b></span>`).join(''); }
 
 function copyEl(id) {
-  const e = el(id); if (!e) return;
-  const txt = e.tagName === 'TEXTAREA' ? e.value : e.textContent;
-  navigator.clipboard.writeText(txt).then(() => toast('✓ Copied!')).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = txt; document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta); toast('✓ Copied!');
-  });
+  const txt = val(id);
+  if (!txt.trim()) { toast('Nothing to copy','⚠'); return; }
+  navigator.clipboard.writeText(txt)
+    .then(()=>toast('Copied to clipboard'))
+    .catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); toast('Copied!'); });
 }
-
 function downloadText(id, filename, mime) {
   const txt = val(id);
-  if (!txt.trim()) { toast('⚠ Nothing to download', 'oklch(var(--er))'); return; }
-  const blob = new Blob([txt], { type: mime || 'text/plain' });
-  triggerDownload(URL.createObjectURL(blob), filename);
+  if (!txt.trim()) { toast('Nothing to download','⚠'); return; }
+  const blob = new Blob([txt], {type: mime||'text/plain'});
+  doDownload(URL.createObjectURL(blob), filename);
 }
-
-function triggerDownload(url, name) {
-  const a = document.createElement('a');
-  a.href = url; a.download = name;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-  toast('↓ Downloading ' + name);
+function doDownload(url, name) {
+  const a = document.createElement('a'); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 3000);
+  toast('Downloading '+name,'↓');
 }
-
 function loadFileInto(input, targetId) {
   const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => { setOut(targetId, e.target.result); toast('📂 Loaded: ' + file.name); };
-  reader.readAsText(file);
-  input.value = '';
+  const r = new FileReader();
+  r.onload = e => { setOut(targetId, e.target.result); toast('Loaded: '+file.name,'📂'); };
+  r.readAsText(file); input.value='';
 }
-
-// ── Drag & Drop ──
-function dragOver(e, dropId) {
-  e.preventDefault(); e.stopPropagation();
-  el(dropId).classList.add('drag-over');
-}
-function dragLeave(dropId) { el(dropId).classList.remove('drag-over'); }
-function dropFile(e, dropId, targetId) {
-  e.preventDefault(); dragLeave(dropId);
+function dragOver(e, id) { e.preventDefault(); e.stopPropagation(); el(id)?.classList.add('drag-over'); }
+function dragLeave(id) { el(id)?.classList.remove('drag-over'); }
+function dropFile(e, dzId, targetId) {
+  e.preventDefault(); dragLeave(dzId);
   const file = e.dataTransfer.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => { setOut(targetId, ev.target.result); toast('📂 Loaded: ' + file.name); };
-  reader.readAsText(file);
+  const r = new FileReader();
+  r.onload = ev => { setOut(targetId, ev.target.result); toast('Loaded: '+file.name,'📂'); };
+  r.readAsText(file);
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // 1. JSON FORMATTER
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function doFmt() {
-  const src = val('jf-in').trim();
-  if (!src) { showErr('jf-err', 'Input is empty.'); return; }
+  const src = val('jf-in').trim(); if (!src){showErr('jf-err','Input is empty.');return;}
   clearErr('jf-err');
   try {
     const parsed = JSON.parse(src);
-    const indentSel = el('jf-indent').value;
-    const indent = indentSel === 'tab' ? '\t' : parseInt(indentSel);
+    const iv = el('jf-indent').value;
+    const indent = iv==='tab' ? '\t' : parseInt(iv);
     const out = JSON.stringify(parsed, null, indent);
     setOut('jf-out', out);
-    setStats('jf-stats', [
-      ['Input', sizeStr(src.length)],
-      ['Output', sizeStr(out.length)],
-      ['Keys', countKeys(parsed)],
-      ['Lines', out.split('\n').length]
-    ]);
-  } catch(e) { showErr('jf-err', 'JSON Parse Error: ' + e.message); setOut('jf-out',''); }
+    setStats('jf-stats',[['Input',sizeStr(src.length)],['Output',sizeStr(out.length)],['Keys',countKeys(parsed)],['Lines',out.split('\n').length]]);
+  } catch(e) { showErr('jf-err','Parse Error: '+e.message); setOut('jf-out',''); }
 }
-function countKeys(obj, count=0) {
-  if (typeof obj === 'object' && obj !== null) {
-    const keys = Object.keys(obj); count += keys.length;
-    keys.forEach(k => { count = countKeys(obj[k], count); });
-  }
-  return count;
-}
+function countKeys(obj,c=0){if(obj&&typeof obj==='object'){const k=Object.keys(obj);c+=k.length;k.forEach(key=>c=countKeys(obj[key],c));}return c;}
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // 2. JSON VALIDATOR
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function doValidate() {
-  const src = val('jv-in').trim();
-  if (!src) { el('jv-res').innerHTML = ''; return; }
+  const src = val('jv-in').trim(); if (!src){el('jv-res').innerHTML='';return;}
   try {
-    const parsed = JSON.parse(src);
-    const type = Array.isArray(parsed) ? 'Array' : (typeof parsed === 'object' ? 'Object' : typeof parsed);
-    el('jv-res').innerHTML = `
-      <div class="alert text-xs p-4 rounded-xl font-mono valid-badge mb-3">
-        <div>
-          <div class="font-bold text-sm mb-2">✔ Valid JSON</div>
-          <div class="opacity-70">Type: <b>${type}</b> · Size: <b>${sizeStr(src.length)}</b> · Keys: <b>${countKeys(parsed)}</b></div>
-        </div>
-      </div>
-      <div class="ed-card">
-        <div class="ed-bar">
-          <div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div>
-          <span>PARSED STRUCTURE</span>
-          <button class="btn btn-xs btn-ghost opacity-70" onclick="copyEl('jv-tree')">⎘ Copy</button>
-        </div>
-        <pre class="code-out" id="jv-tree">${escHtml(JSON.stringify(parsed, null, 2))}</pre>
-      </div>`;
+    const p = JSON.parse(src);
+    const type = Array.isArray(p)?'Array':(typeof p==='object'?'Object':typeof p);
+    el('jv-res').innerHTML=`<div class="alert-glass alert-success" style="margin-bottom:12px;"><span>✔</span><div><b>Valid JSON</b> &nbsp;·&nbsp; Type: ${type} &nbsp;·&nbsp; Size: ${sizeStr(src.length)} &nbsp;·&nbsp; Keys: ${countKeys(p)}</div></div><div class="ed-card"><div class="ed-bar"><div class="ed-dots"><div class="ed-dot r"></div><div class="ed-dot y"></div><div class="ed-dot g"></div></div><span class="ed-bar-title">Parsed Structure</span><button class="btn-xs-glass" onclick="copyEl('jv-tree')">⎘ Copy</button></div><pre class="code-out" id="jv-tree">${escHtml(JSON.stringify(p,null,2))}</pre></div>`;
   } catch(e) {
-    // Try to find error position
-    const msg = e.message;
-    const posMatch = msg.match(/position (\d+)/i);
-    let hint = '';
-    if (posMatch) {
-      const pos = parseInt(posMatch[1]);
-      const before = src.substring(Math.max(0,pos-30), pos);
-      const after = src.substring(pos, Math.min(src.length, pos+30));
-      hint = `<div class="mt-2 opacity-70">Near: <code>...${escHtml(before)}<span class="text-error">↑</span>${escHtml(after)}...</code></div>`;
-    }
-    el('jv-res').innerHTML = `
-      <div class="alert alert-error text-xs p-4 rounded-xl font-mono">
-        <div>
-          <div class="font-bold text-sm mb-1">✖ Invalid JSON</div>
-          <div>${escHtml(msg)}</div>
-          ${hint}
-        </div>
-      </div>`;
+    const pm = e.message.match(/position (\d+)/i);
+    let hint='';
+    if(pm){const pos=parseInt(pm[1]);hint=`<div style="margin-top:8px;font-size:12px;opacity:.7;">Near position <b>${pos}</b>: <code>...${escHtml(src.substring(Math.max(0,pos-20),pos))}⬆${escHtml(src.substring(pos,Math.min(src.length,pos+20)))}...</code></div>`;}
+    el('jv-res').innerHTML=`<div class="alert-glass alert-error"><span>✖</span><div><b>Invalid JSON</b><div style="margin-top:4px;font-size:12px;">${escHtml(e.message)}</div>${hint}</div></div>`;
   }
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // 3. JSON MINIFIER
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function doMinify() {
-  const src = val('jm-in').trim();
-  if (!src) { showErr('jm-err','Input is empty.'); return; }
+  const src = val('jm-in').trim(); if (!src){showErr('jm-err','Input is empty.');return;}
   clearErr('jm-err');
   try {
     const out = JSON.stringify(JSON.parse(src));
     setOut('jm-out', out);
-    const saved = src.length - out.length;
-    const pct = ((saved/src.length)*100).toFixed(1);
-    setStats('jm-stats', [
-      ['Original', sizeStr(src.length)],
-      ['Minified', sizeStr(out.length)],
-      ['Saved', sizeStr(saved) + ' (' + pct + '%)']
-    ]);
-  } catch(e) { showErr('jm-err','JSON Error: ' + e.message); }
+    const saved=src.length-out.length;
+    setStats('jm-stats',[['Original',sizeStr(src.length)],['Minified',sizeStr(out.length)],['Saved',sizeStr(saved)+' ('+((saved/src.length)*100).toFixed(1)+'%)']]);
+  } catch(e){showErr('jm-err','JSON Error: '+e.message);}
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // 4. XML FORMATTER
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function doXmlFmt() {
-  const src = val('xf-in').trim();
-  if (!src) { showErr('xf-err','Input is empty.'); return; }
+  const src = val('xf-in').trim(); if (!src){showErr('xf-err','Input is empty.');return;}
   clearErr('xf-err');
   try {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(src, 'application/xml');
+    const doc = parser.parseFromString(src,'application/xml');
     const err = doc.querySelector('parsererror');
-    if (err) throw new Error(err.textContent.split('\n')[0]);
-    const indent = parseInt(el('xf-indent').value) || 2;
-    const out = formatXMLStr(src, indent);
+    if (err) throw new Error(err.textContent.trim().split('\n')[0]);
+    const indent = parseInt(el('xf-indent').value)||2;
+    const out = formatXML(src, indent);
     setOut('xf-out', out);
-    setStats('xf-stats', [
-      ['Input', sizeStr(src.length)],
-      ['Output', sizeStr(out.length)],
-      ['Lines', out.split('\n').length]
-    ]);
-  } catch(e) { showErr('xf-err','XML Error: ' + e.message); }
+    setStats('xf-stats',[['Input',sizeStr(src.length)],['Output',sizeStr(out.length)],['Lines',out.split('\n').length]]);
+  } catch(e){showErr('xf-err','XML Error: '+e.message);}
 }
-function formatXMLStr(xml, indentSize=2) {
-  const INDENT = ' '.repeat(indentSize);
-  let result = '', depth = 0, i = 0;
-  const lines = xml.replace(/>\s*</g,'>\n<').split('\n');
-  lines.forEach(line => {
-    line = line.trim(); if (!line) return;
-    if (line.match(/^<\/\w/)) depth = Math.max(0, depth-1);
-    result += INDENT.repeat(depth) + line + '\n';
-    if (line.match(/^<\w[^>]*[^\/]>$/) && !line.match(/^<\?/) && !line.match(/^<!--/)) depth++;
+function formatXML(xml, n=2) {
+  const PAD=' '.repeat(n); let result='',depth=0;
+  xml.replace(/>\s*</g,'>\n<').split('\n').forEach(line=>{
+    line=line.trim(); if(!line)return;
+    if(line.match(/^<\/\w/)) depth=Math.max(0,depth-1);
+    result+=PAD.repeat(depth)+line+'\n';
+    if(line.match(/^<[^!?\/][^>]*[^\/]>$/)&&!line.match(/^<\?/)) depth++;
   });
   return result.trim();
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // 5. XML → JSON
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function doXml2Json() {
-  const src = val('xj-in').trim();
-  if (!src) { showErr('xj-err','Input is empty.'); return; }
+  const src = val('xj-in').trim(); if (!src){showErr('xj-err','Input is empty.');return;}
   clearErr('xj-err');
   try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(src, 'application/xml');
+    const doc = new DOMParser().parseFromString(src,'application/xml');
     const err = doc.querySelector('parsererror');
-    if (err) throw new Error(err.textContent.split('\n')[0]);
-    const obj = xmlNodeToObj(doc.documentElement);
-    setOut('xj-out', JSON.stringify(obj, null, 2));
-  } catch(e) { showErr('xj-err','XML Error: ' + e.message); }
+    if (err) throw new Error(err.textContent.trim().split('\n')[0]);
+    setOut('xj-out', JSON.stringify(xmlToObj(doc.documentElement), null, 2));
+  } catch(e){showErr('xj-err','XML Error: '+e.message);}
 }
-function xmlNodeToObj(node) {
-  const obj = {};
-  // Attributes
-  if (node.attributes && node.attributes.length > 0) {
-    obj['@attributes'] = {};
-    for (let a of node.attributes) obj['@attributes'][a.name] = a.value;
-  }
-  if (node.childNodes.length === 0) return obj;
-  const textNodes = [...node.childNodes].filter(n => n.nodeType === 3);
-  const elemNodes = [...node.childNodes].filter(n => n.nodeType === 1);
-  if (elemNodes.length === 0) {
-    const txt = textNodes.map(n=>n.textContent).join('').trim();
-    if (Object.keys(obj).length === 0) return txt;
-    obj['#text'] = txt; return obj;
-  }
-  for (let child of elemNodes) {
-    const v = xmlNodeToObj(child);
-    if (obj[child.nodeName] !== undefined) {
-      if (!Array.isArray(obj[child.nodeName])) obj[child.nodeName] = [obj[child.nodeName]];
-      obj[child.nodeName].push(v);
-    } else { obj[child.nodeName] = v; }
-  }
-  return obj;
+function xmlToObj(node){
+  const o={};
+  if(node.attributes?.length){o['@attributes']={};for(const a of node.attributes)o['@attributes'][a.name]=a.value;}
+  const elems=[...node.childNodes].filter(n=>n.nodeType===1);
+  const texts=[...node.childNodes].filter(n=>n.nodeType===3);
+  if(!elems.length){const t=texts.map(n=>n.textContent).join('').trim();return Object.keys(o).length?(o['#text']=t,o):t;}
+  for(const c of elems){const v=xmlToObj(c);if(o[c.nodeName]!==undefined){if(!Array.isArray(o[c.nodeName]))o[c.nodeName]=[o[c.nodeName]];o[c.nodeName].push(v);}else o[c.nodeName]=v;}
+  return o;
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // 6. JSON → XML
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function doJson2Xml() {
-  const src = val('jx-in').trim();
-  if (!src) { showErr('jx-err','Input is empty.'); return; }
+  const src = val('jx-in').trim(); if (!src){showErr('jx-err','Input is empty.');return;}
   clearErr('jx-err');
   try {
     const obj = JSON.parse(src);
-    const root = el('jx-root').value.trim() || 'root';
-    const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + jsonToXmlNode(root, obj, 0);
-    setOut('jx-out', xml);
-  } catch(e) { showErr('jx-err','JSON Error: ' + e.message); }
+    const root = (el('jx-root').value.trim()||'root').replace(/[^a-zA-Z0-9_\-.:]/g,'_');
+    setOut('jx-out','<?xml version="1.0" encoding="UTF-8"?>\n'+objToXml(root,obj,0));
+  } catch(e){showErr('jx-err','JSON Error: '+e.message);}
 }
-function jsonToXmlNode(tag, val, depth) {
-  const INDENT = '  '.repeat(depth);
-  tag = tag.replace(/[^a-zA-Z0-9_\-.:]/g,'_');
-  if (tag.match(/^\d/)) tag = '_' + tag;
-  if (val === null || val === undefined) return `${INDENT}<${tag}/>\n`;
-  if (typeof val !== 'object') return `${INDENT}<${tag}>${escHtml(String(val))}</${tag}>\n`;
-  if (Array.isArray(val)) return val.map(item => jsonToXmlNode(tag, item, depth)).join('');
-  let inner = '\n';
-  for (const [k, v] of Object.entries(val)) inner += jsonToXmlNode(k, v, depth+1);
-  return `${INDENT}<${tag}>${inner}${INDENT}</${tag}>\n`;
+function objToXml(tag,val,d){
+  const P='  '.repeat(d); tag=tag.replace(/[^a-zA-Z0-9_\-.:]/g,'_'); if(/^\d/.test(tag))tag='_'+tag;
+  if(val===null||val===undefined)return `${P}<${tag}/>\n`;
+  if(typeof val!=='object')return `${P}<${tag}>${escHtml(String(val))}</${tag}>\n`;
+  if(Array.isArray(val))return val.map(v=>objToXml(tag,v,d)).join('');
+  let inner='\n';
+  for(const[k,v] of Object.entries(val))inner+=objToXml(k,v,d+1);
+  return `${P}<${tag}>${inner}${P}</${tag}>\n`;
 }
 
-// ═══════════════════════════════════════════════════
-// 7. BASE64 ENCODE (text)
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// 7. BASE64 ENCODE
+// ═══════════════════════════════════════════════
 function doB64Encode() {
-  const src = val('be-in');
-  if (!src) { toast('⚠ Paste text or drop a file', 'oklch(var(--wa))'); return; }
+  const src = val('be-in'); if(!src){toast('Paste text or drop a file','⚠');return;}
   try {
     const out = btoa(unescape(encodeURIComponent(src)));
     setOut('be-out', out);
-    setStats('be-stats', [
-      ['Input', sizeStr(src.length)],
-      ['Encoded', sizeStr(out.length)],
-      ['Ratio', ((out.length/src.length)*100).toFixed(0) + '%']
-    ]);
-  } catch(e) { toast('Error: ' + e.message, 'oklch(var(--er))'); }
+    setStats('be-stats',[['Input',sizeStr(src.length)],['Encoded',sizeStr(out.length)],['Ratio',((out.length/src.length)*100).toFixed(0)+'%']]);
+  } catch(e){toast('Error: '+e.message,'⚠');}
 }
-
-// ── Binary file → Base64 ──
 function loadBinaryFileForB64(input, outId, statsId) {
-  const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  const file = input.files[0]; if(!file)return;
+  const r = new FileReader();
+  r.onload = e => {
     const b64 = e.target.result.split(',')[1];
     setOut(outId, b64);
-    setStats(statsId, [
-      ['File', file.name],
-      ['Original', sizeStr(file.size)],
-      ['Encoded', sizeStr(b64.length)],
-      ['Type', file.type || 'unknown']
-    ]);
-    toast('📂 Encoded: ' + file.name);
+    setStats(statsId,[['File',file.name],['Original',sizeStr(file.size)],['Encoded',sizeStr(b64.length)],['Type',file.type||'unknown']]);
+    toast('Encoded: '+file.name,'✔');
   };
-  reader.readAsDataURL(file);
-  input.value = '';
+  r.readAsDataURL(file); input.value='';
 }
-function dropBinaryFile(e, dropId, outId, statsId) {
-  e.preventDefault(); dragLeave(dropId);
-  const file = e.dataTransfer.files[0]; if (!file) return;
-  const fakeInput = { files: [file] };
-  loadBinaryFileForB64(fakeInput, outId, statsId);
+function dropBinaryFile(e, dzId, outId, statsId) {
+  e.preventDefault(); dragLeave(dzId);
+  const file = e.dataTransfer.files[0]; if(!file)return;
+  loadBinaryFileForB64({files:[file]}, outId, statsId);
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // 8. BASE64 DECODE
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function doB64Decode() {
-  const src = val('bd-in').trim().replace(/\s/g,'');
-  if (!src) { showErr('bd-err','Input is empty.'); return; }
+  const src = val('bd-in').trim().replace(/\s/g,''); if(!src){showErr('bd-err','Input is empty.');return;}
   clearErr('bd-err');
   try {
     const decoded = decodeURIComponent(escape(atob(src)));
     setOut('bd-out', decoded);
-    setStats('bd-stats', [
-      ['Input', sizeStr(src.length)],
-      ['Decoded', sizeStr(decoded.length)]
-    ]);
-  } catch(e) { showErr('bd-err','Decode Error: ' + e.message + '. Ensure input is valid Base64.'); }
+    setStats('bd-stats',[['Input',sizeStr(src.length)],['Decoded',sizeStr(decoded.length)]]);
+  } catch(e){showErr('bd-err','Decode Error: '+e.message+'. Make sure input is valid Base64.');}
 }
-
 function downloadDecodedBinary(inId) {
-  const src = val(inId).trim().replace(/\s/g,'');
-  if (!src) { toast('⚠ Nothing to download', 'oklch(var(--er))'); return; }
+  const src = val(inId).trim().replace(/\s/g,''); if(!src){toast('Nothing to download','⚠');return;}
   try {
-    const bin = atob(src);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    const blob = new Blob([bytes], { type: 'application/octet-stream' });
-    triggerDownload(URL.createObjectURL(blob), 'decoded_file.bin');
-  } catch(e) { toast('Error: ' + e.message, 'oklch(var(--er))'); }
+    const bin=atob(src); const bytes=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    doDownload(URL.createObjectURL(new Blob([bytes],{type:'application/octet-stream'})),'decoded_file.bin');
+  } catch(e){toast('Error: '+e.message,'⚠');}
 }
 
-// ═══════════════════════════════════════════════════
-// 9. BASE64 → PDF
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// 9. BASE64 → PDF  (FIXED for mobile)
+// Strategy: decode b64 → Uint8Array → Blob → object URL
+// Then trigger download directly (no iframe — blocked on mobile)
+// Also show an "Open in browser" link using object URL
+// ═══════════════════════════════════════════════
 function doB64ToPdf() {
   const src = val('bp-in').trim().replace(/\s/g,'');
-  if (!src) { showErr('bp-err','Paste a Base64 PDF string.'); return; }
+  if (!src) { showErr('bp-err','Paste a Base64 PDF string first.'); return; }
   clearErr('bp-err');
   try {
-    atob(src); // validate
-    const dataUrl = 'data:application/pdf;base64,' + src;
-    el('bp-frame').src = dataUrl;
-    el('bp-preview-wrap').style.display = 'block';
-    toast('📄 PDF loaded — scroll to view');
-  } catch(e) { showErr('bp-err','Invalid Base64: ' + e.message); }
-}
-function downloadB64AsPdf() {
-  const src = val('bp-in').trim().replace(/\s/g,'');
-  if (!src) { toast('⚠ No Base64 string found', 'oklch(var(--er))'); return; }
-  try {
+    // Validate first
     const bin = atob(src);
+    // Check PDF magic bytes: %PDF
+    if (!bin.startsWith('%PDF')) {
+      showErr('bp-err','Warning: This does not appear to be a valid PDF (missing %PDF header). Download anyway?');
+    }
     const bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
     const blob = new Blob([bytes], { type: 'application/pdf' });
-    triggerDownload(URL.createObjectURL(blob), 'decoded.pdf');
-  } catch(e) { toast('Error: ' + e.message, 'oklch(var(--er))'); }
-}
-function clearB64Pdf() {
-  clearEl('bp-in');
-  el('bp-frame').src = '';
-  el('bp-preview-wrap').style.display = 'none';
-  clearErr('bp-err');
+    const url  = URL.createObjectURL(blob);
+
+    // Show actions — download + open link
+    el('bp-info').innerHTML = `
+      <div class="alert-glass alert-success" style="margin-bottom:12px;flex-direction:column;align-items:flex-start;gap:10px;">
+        <div style="display:flex;align-items:center;gap:8px;"><span>✔</span><b>PDF decoded successfully</b> &nbsp;·&nbsp; ${sizeStr(bytes.length)}</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-glass btn-primary" onclick="downloadPdfFromBlob()">↓ Download PDF</button>
+          <a href="${url}" target="_blank" class="btn-glass btn-ghost" style="text-decoration:none;">↗ Open in Browser</a>
+        </div>
+        <div style="font-size:11px;opacity:.5;">On mobile: tap "Open in Browser" to view, or "Download PDF" to save.</div>
+      </div>`;
+
+    // Store url globally for download button
+    window._pdfBlobUrl = url;
+    window._pdfBytes   = bytes;
+    toast('PDF ready — tap Download or Open','✔');
+  } catch(e) { showErr('bp-err','Invalid Base64: '+e.message); }
 }
 
-// ═══════════════════════════════════════════════════
+function downloadPdfFromBlob() {
+  if (!window._pdfBytes) { toast('Decode first','⚠'); return; }
+  const blob = new Blob([window._pdfBytes], { type: 'application/pdf' });
+  doDownload(URL.createObjectURL(blob), 'decoded.pdf');
+}
+
+function downloadB64AsPdf() {
+  const src = val('bp-in').trim().replace(/\s/g,''); if(!src){toast('No Base64 string','⚠');return;}
+  try {
+    const bin=atob(src); const bytes=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    doDownload(URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})),'decoded.pdf');
+  } catch(e){toast('Error: '+e.message,'⚠');}
+}
+
+function clearB64Pdf() {
+  clearEl('bp-in'); clearErr('bp-err');
+  const i=el('bp-info'); if(i) i.innerHTML='';
+  window._pdfBlobUrl=null; window._pdfBytes=null;
+}
+
+// ═══════════════════════════════════════════════
 // 10. PDF → BASE64
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function pdfToB64(input) {
-  const file = input.files[0]; if (!file) return;
-  if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
-    toast('⚠ Please select a PDF file', 'oklch(var(--er))'); return;
-  }
-  el('pb-info').innerHTML = `<div class="text-xs opacity-50 mb-2">⏳ Reading <b>${file.name}</b> (${sizeStr(file.size)})...</div>`;
-  const reader = new FileReader();
-  reader.onload = e => {
+  const file = input.files[0]; if(!file)return;
+  if(!file.type.includes('pdf')&&!file.name.endsWith('.pdf')){toast('Please select a PDF file','⚠');return;}
+  el('pb-info').innerHTML=`<div class="alert-glass alert-info"><span>⏳</span>Reading <b>${file.name}</b> (${sizeStr(file.size)})...</div>`;
+  const r = new FileReader();
+  r.onload = e => {
     const b64 = e.target.result.split(',')[1];
     setOut('pb-out', b64);
-    setStats('pb-stats', [
-      ['File', file.name],
-      ['PDF Size', sizeStr(file.size)],
-      ['B64 Length', sizeStr(b64.length)],
-      ['Overhead', (((b64.length / file.size) - 1) * 100).toFixed(1) + '%']
-    ]);
-    el('pb-info').innerHTML = `<div class="alert alert-success text-xs p-3 rounded-lg font-mono">✔ Encoded: <b>${file.name}</b> · ${sizeStr(file.size)} → ${sizeStr(b64.length)} B64</div>`;
-    toast('✔ PDF encoded!');
+    setStats('pb-stats',[['File',file.name],['PDF Size',sizeStr(file.size)],['B64 Length',sizeStr(b64.length)],['Overhead',(((b64.length/file.size)-1)*100).toFixed(1)+'%']]);
+    el('pb-info').innerHTML=`<div class="alert-glass alert-success"><span>✔</span><span>Encoded: <b>${file.name}</b> &nbsp;·&nbsp; ${sizeStr(file.size)} → ${sizeStr(b64.length)} Base64</span></div>`;
+    toast('PDF encoded!','✔');
   };
-  reader.readAsDataURL(file);
-  input.value = '';
+  r.readAsDataURL(file); input.value='';
 }
-function dropPdfToB64(e, dropId) {
-  e.preventDefault(); dragLeave(dropId);
-  const file = e.dataTransfer.files[0]; if (!file) return;
-  const fakeInput = { files: [file] };
-  pdfToB64(fakeInput);
+function dropPdfToB64(e, dzId) {
+  e.preventDefault(); dragLeave(dzId);
+  const file = e.dataTransfer.files[0]; if(!file)return;
+  pdfToB64({files:[file]});
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // 11. ESCAPE / UNESCAPE
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function doEscape() {
-  const src = val('esc-in');
-  if (!src) return;
+  const src = val('esc-in'); if(!src)return;
   const mode = el('esc-mode').value;
-  let out = '';
   try {
-    switch(mode) {
-      case 'json-esc':  out = jsonEscape(src); break;
-      case 'json-unesc': out = jsonUnescape(src); break;
-      case 'xml-esc':   out = xmlEscape(src); break;
-      case 'xml-unesc': out = xmlUnescape(src); break;
-      case 'html-esc':  out = htmlEscape(src); break;
-      case 'html-unesc': out = htmlUnescape(src); break;
-      case 'url-enc':   out = encodeURIComponent(src); break;
-      case 'url-dec':   out = decodeURIComponent(src); break;
-      case 'raw-esc':   out = rawEscape(src); break;
-      case 'raw-unesc': out = rawUnescape(src); break;
-      default: out = src;
-    }
-    setOut('esc-out', out);
-  } catch(e) { toast('Error: ' + e.message, 'oklch(var(--er))'); }
-}
-
-function jsonEscape(s) {
-  return s
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t')
-    .replace(/\f/g, '\\f')
-    .replace(/\b/g, '\\b')
-    .replace(/[\x00-\x1f\x7f]/g, c => '\\u' + c.charCodeAt(0).toString(16).padStart(4,'0'));
-}
-function jsonUnescape(s) {
-  return s
-    .replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t')
-    .replace(/\\f/g, '\f').replace(/\\b/g, '\b')
-    .replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h,16)))
-    .replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-}
-function xmlEscape(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-          .replace(/"/g,'&quot;').replace(/'/g,'&apos;');
-}
-function xmlUnescape(s) {
-  return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
-          .replace(/&quot;/g,'"').replace(/&apos;/g,"'");
-}
-function htmlEscape(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-          .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-function htmlUnescape(s) {
-  const div = document.createElement('div');
-  div.innerHTML = s; return div.textContent;
-}
-function rawEscape(s) {
-  return s.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/\r/g,'\\r')
-          .replace(/\t/g,'\\t').replace(/\0/g,'\\0');
-}
-function rawUnescape(s) {
-  return s.replace(/\\n/g,'\n').replace(/\\r/g,'\r').replace(/\\t/g,'\t')
-          .replace(/\\0/g,'\0').replace(/\\\\/g,'\\');
-}
-
-// ═══════════════════════════════════════════════════
-// KEYBOARD SHORTCUTS
-// ═══════════════════════════════════════════════════
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    const active = document.querySelector('.panel.active');
-    if (!active) return;
-    const id = active.id;
     const map = {
-      'panel-json-fmt': doFmt, 'panel-json-val': doValidate,
-      'panel-json-min': doMinify, 'panel-xml-fmt': doXmlFmt,
-      'panel-xml-json': doXml2Json, 'panel-json-xml': doJson2Xml,
-      'panel-b64-enc': doB64Encode, 'panel-b64-dec': doB64Decode,
-      'panel-b64-pdf': doB64ToPdf, 'panel-escape': doEscape
+      'json-esc':   s=>s.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\n/g,'\\n').replace(/\r/g,'\\r').replace(/\t/g,'\\t').replace(/\f/g,'\\f').replace(/\b/g,'\\b').replace(/[\x00-\x1f\x7f]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0')),
+      'json-unesc': s=>s.replace(/\\n/g,'\n').replace(/\\r/g,'\r').replace(/\\t/g,'\t').replace(/\\f/g,'\f').replace(/\\b/g,'\b').replace(/\\u([0-9a-fA-F]{4})/g,(_,h)=>String.fromCharCode(parseInt(h,16))).replace(/\\"/g,'"').replace(/\\\\/g,'\\'),
+      'xml-esc':    s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;'),
+      'xml-unesc':  s=>s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'"),
+      'html-esc':   s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'),
+      'html-unesc': s=>{const d=document.createElement('div');d.innerHTML=s;return d.textContent;},
+      'url-enc':    s=>encodeURIComponent(s),
+      'url-dec':    s=>decodeURIComponent(s),
+      'raw-esc':    s=>s.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/\r/g,'\\r').replace(/\t/g,'\\t').replace(/\0/g,'\\0'),
+      'raw-unesc':  s=>s.replace(/\\n/g,'\n').replace(/\\r/g,'\r').replace(/\\t/g,'\t').replace(/\\0/g,'\0').replace(/\\\\/g,'\\'),
     };
-    if (map[id]) { e.preventDefault(); map[id](); }
+    setOut('esc-out', map[mode](src));
+  } catch(e){toast('Error: '+e.message,'⚠');}
+}
+
+// ═══════════════════════════════════════════════
+// KEYBOARD SHORTCUT: Ctrl/Cmd + Enter
+// ═══════════════════════════════════════════════
+const shortcutMap = {
+  'panel-json-fmt':doFmt,'panel-json-val':doValidate,'panel-json-min':doMinify,
+  'panel-xml-fmt':doXmlFmt,'panel-xml-json':doXml2Json,'panel-json-xml':doJson2Xml,
+  'panel-b64-enc':doB64Encode,'panel-b64-dec':doB64Decode,
+  'panel-b64-pdf':doB64ToPdf,'panel-escape':doEscape
+};
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){
+    const ap=document.querySelector('.panel.active'); if(!ap)return;
+    const fn=shortcutMap[ap.id]; if(fn){e.preventDefault();fn();}
   }
 });
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 buildSwatches();
 </script>
 </body>
